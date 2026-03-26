@@ -1,0 +1,19 @@
+KNOWN LIMITATIONS AND FUTURE WORK
+
+Current Limitations:
+1. Payment Integration: The current implementation utilizes a mock PaymentRepository that simulates MTN Mobile Money and Airtel Money transactions with artificial latency and randomized success rates. Production deployment requires integration with actual Mobile Money APIs (MTN MoMo API, Airtel Money API), which necessitate formal partnerships with mobile network operators, compliance with Bank of Rwanda regulations, and PCI-DSS certification. The current simulation is sufficient for demonstration purposes but cannot process real financial transactions.
+
+2. Verification Automation: Provider verification badges (RDB, IGCP, RCHA) currently require manual administrative assignment. Future iterations should integrate directly with Rwanda Development Board and Rwanda Cultural Heritage Academy APIs to automatically validate guide licenses and certifications, reducing onboarding friction for legitimate providers.
+
+3. Geofencing Precision: Safety alerts utilize simple geographic radius queries rather than sophisticated polygonal geofencing. In mountainous regions like Volcanoes National Park, this may result in imprecise alert targeting. Future work should implement Turf.js or similar spatial libraries for complex boundary definitions.
+
+4. Offline Synchronization Conflicts: While the app supports offline booking creation, complex conflict resolution (e.g., double-booking the same time slot by two offline users) relies on Firestore's last-write-wins policy. A more sophisticated operational transformation (OT) algorithm or CRDT-based synchronization is needed for high-concurrency scenarios.
+
+Future Enhancements:
+1. Voice Navigation: Integration of Kinyarwanda-language audio guides and voice-over navigation for low-literacy users, leveraging Rwanda's high mobile penetration in rural areas.
+
+2. Blockchain Verification: Implementation of immutable ledger technology for verification badges to prevent impersonation fraud (addressing Grace's concern about photo theft).
+
+3. AI Matching: Machine learning algorithms to match tourists with providers based on interest profiles, language preferences, and past booking behavior.
+
+4. USSD Fallback: Full USSD interface (*123# style) for providers with feature phones, ensuring true digital inclusion beyond smartphone penetration.

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "884646714045",
+    "project_id": "afrivoyage-group33",
+    "storage_bucket": "afrivoyage-group33.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:884646714045:android:0077aa175ace83a3eff5d4",
+        "android_client_info": {
+          "package_name": "com.group33.afrivoyage"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSCNsiHlG937f8SKtsq3TdRFqXM9HKyLA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

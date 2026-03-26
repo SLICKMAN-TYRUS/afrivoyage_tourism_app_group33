@@ -1,0 +1,34 @@
+AFRIVOYAGE DATABASE ERD
+
+users (1) ------------------< (N) experiences
+ PK: uid                      PK: id
+                              FK: providerId -> users.uid
+                              
+users (1) ------------------< (N) bookings (as tourist)
+                               PK: id
+                               FK: touristId -> users.uid
+                               FK: experienceId -> experiences.id
+                               FK: providerId -> users.uid
+                               
+experiences (1) ------------< (N) bookings
+                               - status
+                               - bookingDate
+                               - totalPrice
+                               - paymentMethod
+                               
+bookings (1) --------------- (1) reviews
+                               PK: id
+                               FK: bookingId -> bookings.id
+                               
+safety_alerts (standalone)
+   PK: id
+   - type (weather/security/health)
+   - severity (low/medium/high)
+   - geoFence (location array)
+
+RELATIONSHIPS SUMMARY:
+- 1 user (provider) : N experiences
+- 1 user (tourist) : N bookings  
+- 1 experience : N bookings
+- 1 booking : 1 review
+- safety_alerts : independent (admin only)

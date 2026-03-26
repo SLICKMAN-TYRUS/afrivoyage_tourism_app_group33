@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isTourist() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'tourist';
+    }
+
+    function isProvider() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'provider';
+    }
+
+    // Users collection - Users can read any profile, but only update their own
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+    }
+
+    // Experiences collection - Public read, Provider-only write
+    match /experiences/{experienceId} {
+      // Anyone can read experiences (discovery)
+      allow read: if true;
+
+      // Only providers can create
+      allow create: if isAuthenticated() && isProvider();
+
+      // Only the owner provider can update/delete
+      allow update, delete: if isAuthenticated() &&
+        resource.data.providerId == request.auth.uid;
+    }
+
+    // Bookings collection - CRUD Security for Video Demo
+    match /bookings/{bookingId} {
+      // Tourist can create bookings for themselves
+      allow create: if isAuthenticated() &&
+        request.resource.data.touristId == request.auth.uid;
+
+      // Tourists and Providers can read their own bookings
+      allow read: if isAuthenticated() &&
+        (resource.data.touristId == request.auth.uid ||
+         resource.data.providerId == request.auth.uid);
+
+      // Both parties can update status (confirm, complete, cancel)
+      allow update: if isAuthenticated() &&
+        (resource.data.touristId == request.auth.uid ||
+         resource.data.providerId == request.auth.uid);
+    }
+
+    // Reviews collection - Tourists create, public read
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated() &&
+        isTourist() &&
+        request.resource.data.touristId == request.auth.uid;
+    }
+
+    // Safety alerts - Admin only write, public read
+    match /safety_alerts/{alertId} {
+      allow read: if true;
+      allow write: if false; // Only via Admin SDK or Cloud Functions
+    }
+  }
+}

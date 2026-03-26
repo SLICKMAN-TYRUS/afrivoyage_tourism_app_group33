@@ -1,0 +1,9 @@
+DATABASE ARCHITECTURE
+
+AfriVoyage utilizes Google Cloud Firestore, a NoSQL document-oriented database, selected for its real-time synchronization capabilities, offline persistence support, and seamless integration with Firebase Authentication. The database is structured around five core collections that reflect the dual-user nature of the platform (tourists and providers).
+
+The schema follows a denormalized approach optimized for mobile connectivity constraints in Rwanda. The users collection serves as the identity hub, distinguishing between tourists and providers through a role field. Provider profiles embed verification metadata (RDB, IGCP, RCHA badges) as sub-objects to reduce query complexity. The experiences collection stores tour listings with geospatial data (GeoPoint) for location-based discovery, while the bookings collection acts as the transactional core, maintaining foreign key references to users (both tourist and provider) and experiences.
+
+Critical to the offline-first requirement, the bookings collection includes an offlineSyncStatus field, enabling the app to queue CRUD operations during connectivity gaps and synchronize when the network restores. Compound indexes on touristId + experienceDate and providerId + status ensure efficient query performance for the two primary user flows: tourists viewing their travel history and providers managing upcoming appointments.
+
+The safety_alerts collection operates independently, populated via administrative interfaces or automated APIs from Rwanda's National Emergency Coordination Centre, with geofencing capabilities to push location-specific notifications to affected users.

@@ -1,0 +1,16 @@
+FIREBASE SECURITY RULES
+
+The Firestore security rules implement a role-based access control (RBAC) model designed to protect sensitive booking data while maintaining public discoverability of experiences. The rules are structured hierarchically, with helper functions (isAuthenticated, isOwner, isProvider) enforcing DRY principles.
+
+Key protections include:
+1. User Data Isolation: While any authenticated user can read basic profile information (necessary for displaying guide details), write operations are strictly limited to the document owner (request.auth.uid == userId).
+
+2. Provider Content Ownership: Experiences are publicly readable (allow read: if true) to enable tourist discovery, but mutations are restricted to verified providers (isProvider() check) and specifically the listing owner (resource.data.providerId == request.auth.uid). This prevents unauthorized modification of competitor listings.
+
+3. Booking Privacy: The bookings collection enforces strict bilateral access—tourists can only view their own reservations (resource.data.touristId == request.auth.uid), while providers see only bookings for their experiences (resource.data.providerId == request.auth.uid). This prevents data leakage between competing providers or tourists.
+
+4. Review Integrity: Reviews are append-only from authenticated tourists (isTourist() validation), with the touristId field locked to the requester's UID to prevent spoofed testimonials.
+
+5. Administrative Controls: Safety alerts are read-only for clients (allow write: if false), ensuring only backend services or admin SDKs can broadcast emergency notifications, preventing alert system abuse.
+
+These rules are deployed via the Firebase CLI (firebase deploy --only firestore:rules) and version-controlled in firestore.rules. They align with the principle of least privilege while supporting the app's core transactional workflows.
