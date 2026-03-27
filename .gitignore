@@ -4,10 +4,24 @@
 *.log
 *.pyc
 *.swp
+.DS_Store
 .buildlog/
 .history
+.svn/
+.swiftpm/
+migrate_working_dir/
 
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
 
+# Visual Studio Code related
+.classpath
+.project
+.settings/
+.vscode/*
 
 # Flutter repo-specific
 /bin/cache/
@@ -109,6 +123,51 @@ coverage/
 
 # Symbols
 app.*.symbols
+
+# ============================================
+# FIREBASE & API KEYS - CRITICAL SECURITY
+# ============================================
+
+# Firebase configuration files (contain API keys)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
+firebase_app_id_file.json
+
+# Firebase CLI tokens and config
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Environment files (API keys, secrets)
+.env
+.env.local
+.env.development
+.env.production
+*.env
+.env*
+
+# API Keys and Secrets
+**/api_key.dart
+**/secrets.dart
+**/config.dart
+lib/core/constants/api_keys.dart
+
+# Keystore files
+*.keystore
+*.jks
+key.properties
+signing.properties
+
+# Google Cloud credentials
+*-credentials.json
+service-account.json
+google-credentials.json
+
+# ============================================
+# END SECURITY SECTION
+# ============================================
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3
