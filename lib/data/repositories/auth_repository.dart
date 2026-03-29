@@ -3,22 +3,37 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepository {
-  final FirebaseAuth _auth;
-  final GoogleSignIn _googleSignIn;
-  final FirebaseFirestore _firestore;
+  // Optional overrides — kept as nullable fields so the constructor
+  // never touches Firebase.instance at all.  Firebase is only reached
+  // through the lazy getters below, which are called at method-call
+  // time, not at construction time.  This allows subclasses (and test
+  // fakes) to be constructed safely without a running Firebase app.
+  final FirebaseAuth? _authOverride;
+  final GoogleSignIn? _googleSignInOverride;
+  final FirebaseFirestore? _firestoreOverride;
 
   AuthRepository({
     FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
     FirebaseFirestore? firestore,
-  })  : _auth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn(),
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  })  : _authOverride = firebaseAuth,
+        _googleSignInOverride = googleSignIn,
+        _firestoreOverride = firestore;
+
+  // ── Lazy getters — Firebase.instance only evaluated on first use ──
+
+  FirebaseAuth get _auth => _authOverride ?? FirebaseAuth.instance;
+  GoogleSignIn get _googleSignIn =>
+      _googleSignInOverride ?? GoogleSignIn();
+  FirebaseFirestore get _db =>
+      _firestoreOverride ?? FirebaseFirestore.instance;
+
+  // ── Public accessors ──────────────────────────────────────────────
 
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // ── Sign in ───────────────────────────────────────────────
+  // ── Sign in ───────────────────────────────────────────────────────
 
   Future<User?> signInWithEmail(String email, String password) async {
     try {
@@ -48,9 +63,8 @@ class AuthRepository {
       final result = await _auth.signInWithCredential(credential);
       final user = result.user;
 
-      // Save profile if first-time Google sign-in
       if (user != null && result.additionalUserInfo?.isNewUser == true) {
-        await _saveUserProfile(
+        await _saveProfile(
           uid: user.uid,
           fullName: user.displayName ?? '',
           email: user.email ?? '',
@@ -68,7 +82,7 @@ class AuthRepository {
     }
   }
 
-  // ── Sign up ───────────────────────────────────────────────
+  // ── Sign up ───────────────────────────────────────────────────────
 
   Future<User?> signUpWithProfile({
     required String email,
@@ -76,7 +90,7 @@ class AuthRepository {
     required String fullName,
     required String phone,
     required String dateOfBirth,
-    required String accountType, // 'tourist' | 'provider'
+    required String accountType,
   }) async {
     try {
       final result = await _auth.createUserWithEmailAndPassword(
@@ -86,11 +100,9 @@ class AuthRepository {
       final user = result.user;
       if (user == null) throw Exception('Account creation failed.');
 
-      // Set display name so it shows throughout the app
       await user.updateDisplayName(fullName.trim());
 
-      // Persist full profile to Firestore
-      await _saveUserProfile(
+      await _saveProfile(
         uid: user.uid,
         fullName: fullName.trim(),
         email: email.trim(),
@@ -103,13 +115,12 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       throw Exception(_friendlyAuthError(e));
     } catch (e) {
-      // Re-throw if it's already a clean Exception from above
       if (e is Exception) rethrow;
       throw Exception('Sign up failed. Please try again.');
     }
   }
 
-  Future<void> _saveUserProfile({
+  Future<void> _saveProfile({
     required String uid,
     required String fullName,
     required String email,
@@ -117,7 +128,7 @@ class AuthRepository {
     required String dateOfBirth,
     required String accountType,
   }) async {
-    await _firestore.collection('users').doc(uid).set({
+    await _db.collection('users').doc(uid).set({
       'fullName': fullName,
       'email': email,
       'phone': phone,
@@ -127,18 +138,18 @@ class AuthRepository {
     });
   }
 
-  // ── Fetch profile ─────────────────────────────────────────
+  // ── Profile fetch ─────────────────────────────────────────────────
 
   Future<Map<String, dynamic>?> getUserProfile(String uid) async {
     try {
-      final doc = await _firestore.collection('users').doc(uid).get();
+      final doc = await _db.collection('users').doc(uid).get();
       return doc.data();
     } catch (_) {
       return null;
     }
   }
 
-  // ── Sign out ──────────────────────────────────────────────
+  // ── Sign out ──────────────────────────────────────────────────────
 
   Future<void> signOut() async {
     await Future.wait([
@@ -147,7 +158,7 @@ class AuthRepository {
     ]);
   }
 
-  // ── Password reset ────────────────────────────────────────
+  // ── Password reset ────────────────────────────────────────────────
 
   Future<void> sendPasswordReset(String email) async {
     try {
@@ -159,7 +170,7 @@ class AuthRepository {
     }
   }
 
-  // ── Helpers ───────────────────────────────────────────────
+  // ── Error mapping ─────────────────────────────────────────────────
 
   String _friendlyAuthError(FirebaseAuthException e) {
     switch (e.code) {
@@ -188,20 +199,16 @@ class AuthRepository {
   }
 }
 
-// ── Standalone validators ─────────────────────────────────────
+// ── Standalone validators ─────────────────────────────────────────
 
-bool validateEmail(String email) {
-  return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email.trim());
-}
+bool validateEmail(String email) =>
+    RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email.trim());
 
-bool validatePassword(String password) {
-  if (password.length < 8) return false;
-  if (!password.contains(RegExp(r'[A-Z]'))) return false;
-  if (!password.contains(RegExp(r'[a-z]'))) return false;
-  if (!password.contains(RegExp(r'[0-9]'))) return false;
-  return true;
-}
+bool validatePassword(String password) =>
+    password.length >= 8 &&
+    password.contains(RegExp(r'[A-Z]')) &&
+    password.contains(RegExp(r'[a-z]')) &&
+    password.contains(RegExp(r'[0-9]'));
 
-bool validatePhone(String phone) {
-  return RegExp(r'^\+?[0-9]{9,15}$').hasMatch(phone.replaceAll(' ', ''));
-}
+bool validatePhone(String phone) =>
+    RegExp(r'^\+?[0-9]{9,15}$').hasMatch(phone.replaceAll(' ', ''));
