@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:afrivoyage/core/routes/app_router.dart';
 import 'package:afrivoyage/core/observers/app_bloc_observer.dart';
+import 'package:afrivoyage/core/cubits/settings_cubit.dart';
 import 'package:afrivoyage/presentation/shared/theme/theme_cubit.dart';
-// keeping DefaultFirebaseOptions from their branch — more explicit and safer
 import 'package:afrivoyage/firebase_options.dart';
 
 // Starting point of the whole app. Keep this file lean —
@@ -61,12 +61,9 @@ class AfriVoyageApp extends StatelessWidget {
         BlocProvider<ThemeCubit>(
           create: (_) => ThemeCubit(sharedPreferences),
         ),
-
-        // Add the team's BLoCs here as we wire things up.
-        // Keep them here — not buried inside individual screens.
-        // BlocProvider<AuthBloc>(create: (_) => AuthBloc()),
-        // BlocProvider<ExperienceBloc>(create: (_) => ExperienceBloc()),
-        // BlocProvider<ProviderBloc>(create: (_) => ProviderBloc()),
+        BlocProvider<SettingsCubit>(
+          create: (_) => SettingsCubit(sharedPreferences),
+        ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {

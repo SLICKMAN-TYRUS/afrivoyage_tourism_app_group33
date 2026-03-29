@@ -1,8 +1,69 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../data/repositories/experience_repository.dart';
-import '../../../data/repositories/payment_repository.dart';
+import 'package:go_router/go_router.dart';
 
+// ─────────────────────────────────────────────
+// Static experience data — keyed by id
+// ─────────────────────────────────────────────
+const _kExpData = <String, Map<String, dynamic>>{
+  'exp1': {
+    'title': 'Gorilla Trekking Experience',
+    'priceRWF': 95000.0,
+    'location': 'Volcanoes National Park',
+    'duration': '6–8 hours',
+    'color': 0xFF1B5E20,
+    'description':
+        'Trek through lush rainforests to encounter endangered mountain gorillas in their natural habitat.',
+  },
+  'exp2': {
+    'title': 'Traditional Intore Dance Workshop',
+    'priceRWF': 15000.0,
+    'location': 'Kigali Cultural Center',
+    'duration': '2 hours',
+    'color': 0xFF4A148C,
+    'description':
+        'Learn the powerful Intore dance — a UNESCO-recognised cultural heritage of Rwanda.',
+  },
+  'exp3': {
+    'title': 'Coffee Farm Tour & Tasting',
+    'priceRWF': 20000.0,
+    'location': 'Huye District',
+    'duration': '3 hours',
+    'color': 0xFF4E342E,
+    'description':
+        'Visit a local coffee cooperative and learn about Rwanda\'s famous single-origin coffee.',
+  },
+  'exp4': {
+    'title': 'Nyungwe Forest Canopy Walk',
+    'priceRWF': 25000.0,
+    'location': 'Nyungwe National Park',
+    'duration': '4 hours',
+    'color': 0xFF2E7D32,
+    'description':
+        'Walk 70 m above the ground on a suspension bridge through one of Africa\'s oldest rainforests.',
+  },
+  'exp5': {
+    'title': 'Lake Kivu Sunset Cruise',
+    'priceRWF': 18000.0,
+    'location': 'Gisenyi, Lake Kivu',
+    'duration': '2 hours',
+    'color': 0xFF01579B,
+    'description':
+        'Sail on beautiful Lake Kivu while watching the sunset over the Congo Nile Trail mountains.',
+  },
+  'exp6': {
+    'title': 'Kigali City Heritage Tour',
+    'priceRWF': 12000.0,
+    'location': 'Kigali City',
+    'duration': '3 hours',
+    'color': 0xFFE65100,
+    'description':
+        'Explore Kigali\'s transformation from the Genocide Memorial to bustling Kimironko Market.',
+  },
+};
+
+// ─────────────────────────────────────────────
+// BookingScreen
+// ─────────────────────────────────────────────
 class BookingScreen extends StatefulWidget {
   final String? experienceId;
   const BookingScreen({super.key, this.experienceId});
@@ -12,356 +73,522 @@ class BookingScreen extends StatefulWidget {
 }
 
 class _BookingScreenState extends State<BookingScreen> {
-  final _experienceRepo = ExperienceRepository();
-  final _paymentRepo = PaymentRepository();
   DateTime? _selectedDate;
   int _groupSize = 1;
   bool _isProcessing = false;
+  String _selectedPayment = 'mtn';
+
+  Map<String, dynamic> get _exp {
+    final id = widget.experienceId ?? '';
+    return Map<String, dynamic>.from(
+      _kExpData[id] ?? _kExpData['exp1']!,
+    );
+  }
+
+  double get _basePrice => _exp['priceRWF'] as double;
+  double get _total => _basePrice * _groupSize;
+  double get _platformFee => _total * 0.08;
+  double get _providerEarnings => _total * 0.92;
+
+  String _fmt(double v) {
+    if (v >= 1000) {
+      final k = v / 1000;
+      return '${k % 1 == 0 ? k.toInt() : k.toStringAsFixed(1)}K';
+    }
+    return v.toStringAsFixed(0);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final experienceId = widget.experienceId;
-    if (experienceId == null) {
+    // No id? Show "browse first" message
+    if (widget.experienceId == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Book Experience'),
-        ),
-        body: const Center(
-          child: Text('No experience selected. Please choose an experience first.'),
+        appBar: AppBar(title: const Text('Book Experience')),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.explore_outlined,
+                  size: 64, color: Colors.grey),
+              const SizedBox(height: 16),
+              const Text('No experience selected.',
+                  style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 8),
+              const Text('Browse experiences from the Home tab.',
+                  style: TextStyle(color: Colors.grey)),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => context.go('/home'),
+                child: const Text('Browse Experiences'),
+              ),
+            ],
+          ),
         ),
       );
     }
 
+    final exp = _exp;
+    final bg = Color(exp['color'] as int);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Book Experience'),
-      ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: _experienceRepo.getExperienceById(experienceId),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      appBar: AppBar(title: const Text('Book Experience')),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Hero header ──────────────────────────────
+            Container(
+              width: double.infinity,
+              height: 155,
+              color: bg,
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    exp['title'] as String,
+                    style: const TextStyle(
+                        fontSize: 19,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on,
+                          size: 13, color: Colors.white70),
+                      const SizedBox(width: 4),
+                      Text(exp['location'] as String,
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 12)),
+                      const SizedBox(width: 14),
+                      const Icon(Icons.timer_outlined,
+                          size: 13, color: Colors.white70),
+                      const SizedBox(width: 4),
+                      Text(exp['duration'] as String,
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 12)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
 
-          final exp = snapshot.data!.data() as Map<String, dynamic>;
-          final price = (exp['priceRWF'] as num).toDouble();
-          final totalPrice = price * _groupSize;
-          final breakdown = _paymentRepo.calculatePaymentBreakdown(totalPrice);
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Description ──────────────────────
+                  Text(
+                    exp['description'] as String,
+                    style: TextStyle(
+                        color: Colors.grey[600], fontSize: 13),
+                  ),
+                  const SizedBox(height: 24),
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Experience Summary
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[700],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(Icons.image, size: 40),
+                  // ── Date selection ───────────────────
+                  _sectionTitle('Select Date'),
+                  const SizedBox(height: 10),
+                  InkWell(
+                    onTap: _pickDate,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: _selectedDate != null
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.grey.shade400,
+                          width: _selectedDate != null ? 2 : 1,
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.calendar_month,
+                              color: _selectedDate != null
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                  : Colors.grey),
+                          const SizedBox(width: 12),
+                          Text(
+                            _selectedDate != null
+                                ? _formatDate(_selectedDate!)
+                                : 'Tap to choose a date',
+                            style: TextStyle(
+                                color: _selectedDate != null
+                                    ? null
+                                    : Colors.grey[500]),
+                          ),
+                          const Spacer(),
+                          if (_selectedDate == null)
+                            Text('Required',
+                                style: TextStyle(
+                                    color: Colors.red[400],
+                                    fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ── Group size ───────────────────────
+                  _sectionTitle('Group Size'),
+                  const SizedBox(height: 10),
+                  Card(
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 6),
+                      child: Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Number of people',
+                              style: TextStyle(fontSize: 14)),
+                          Row(
                             children: [
-                              Text(
-                                exp['title'] ?? 'Experience',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                              IconButton(
+                                onPressed: _groupSize > 1
+                                    ? () => setState(
+                                        () => _groupSize--)
+                                    : null,
+                                icon: const Icon(
+                                    Icons.remove_circle_outline),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary,
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'RWF ${price.toStringAsFixed(0)} per person',
-                                style: TextStyle(color: Colors.grey[400]),
+                              SizedBox(
+                                width: 36,
+                                child: Text('$_groupSize',
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight:
+                                            FontWeight.bold)),
+                              ),
+                              IconButton(
+                                onPressed: _groupSize < 15
+                                    ? () => setState(
+                                        () => _groupSize++)
+                                    : null,
+                                icon: const Icon(
+                                    Icons.add_circle_outline),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary,
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-                // Date Selection
-                Text(
-                  'Select Date',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                  // ── Payment method ───────────────────
+                  _sectionTitle('Payment Method'),
+                  const SizedBox(height: 10),
+                  _paymentTile(
+                      'mtn', 'MTN Mobile Money',
+                      'Pay securely with MTN MoMo',
+                      const Color(0xFFFFC400)),
+                  const SizedBox(height: 8),
+                  _paymentTile(
+                      'airtel', 'Airtel Money',
+                      'Pay securely with Airtel',
+                      const Color(0xFFD50000)),
+                  const SizedBox(height: 24),
+
+                  // ── Price breakdown ──────────────────
+                  _sectionTitle('Price Breakdown'),
+                  const SizedBox(height: 10),
+                  Card(
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          _priceRow(
+                            'Experience fee',
+                            'RWF ${_fmt(_basePrice)} × $_groupSize',
+                          ),
+                          const SizedBox(height: 6),
+                          _priceRow(
+                            'Subtotal',
+                            'RWF ${_fmt(_total)}',
+                          ),
+                          _priceRow(
+                            'Platform fee (8 %)',
+                            '− RWF ${_fmt(_platformFee)}',
+                            isGrey: true,
+                          ),
+                          const Divider(height: 20),
+                          _priceRow(
+                            'Total',
+                            'RWF ${_fmt(_total)}',
+                            isBold: true,
+                            isGreen: true,
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.green
+                                  .withValues(alpha: 0.1),
+                              borderRadius:
+                                  BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.favorite,
+                                    size: 14,
+                                    color: Colors.green),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    'RWF ${_fmt(_providerEarnings)} goes directly to the local provider (92 %)',
+                                    style: const TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 11),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                ),
-                const SizedBox(height: 12),
-                InkWell(
-                  onTap: () async {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now().add(const Duration(days: 1)),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 365)),
-                    );
-                    if (date != null) {
-                      setState(() => _selectedDate = date);
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[800],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.calendar_today),
-                        const SizedBox(width: 12),
-                        Text(
-                          _selectedDate != null
-                              ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-                              : 'Choose a date',
-                        ),
-                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
+                  const SizedBox(height: 32),
 
-                // Group Size
-                Text(
-                  'Group Size',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: _groupSize > 1
-                          ? () => setState(() => _groupSize--)
-                          : null,
-                      icon: const Icon(Icons.remove),
+                  // ── Confirm button ───────────────────
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: (_isProcessing ||
+                              _selectedDate == null)
+                          ? null
+                          : _processBooking,
+                      child: _isProcessing
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Confirm & Pay'),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[800],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                  ),
+                  if (_selectedDate == null) ...[
+                    const SizedBox(height: 6),
+                    const Center(
                       child: Text(
-                        '$_groupSize',
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                        'Please select a date to continue',
+                        style: TextStyle(
+                            color: Colors.red, fontSize: 12),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () => setState(() => _groupSize++),
-                      icon: const Icon(Icons.add),
                     ),
                   ],
-                ),
-                const SizedBox(height: 32),
-
-                // Payment Breakdown
-                Text(
-                  'Payment Details',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 12),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        _buildPriceRow('Experience fee',
-                            'RWF ${totalPrice.toStringAsFixed(0)}'),
-                        const Divider(height: 24),
-                        _buildPriceRow(
-                          'Platform fee (${breakdown['platformFeePercent']}%)',
-                          'RWF ${breakdown['platformFee']!.toStringAsFixed(0)}',
-                          isGrey: true,
-                        ),
-                        const Divider(height: 24),
-                        _buildPriceRow(
-                          'Total',
-                          'RWF ${totalPrice.toStringAsFixed(0)}',
-                          isBold: true,
-                          isGreen: true,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'RWF ${breakdown['providerEarnings']!.toStringAsFixed(0)} goes directly to local provider',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 12,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: 12),
+                  Center(
+                    child: Text(
+                      'Free cancellation up to 24 hours before the experience',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.grey[500], fontSize: 12),
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-
-                // Payment Method
-                Text(
-                  'Payment Method',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.yellow[700],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'M',
-                          style: TextStyle(
-                            color: Colors.yellow,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'MTN Mobile Money',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              'Pay securely with Mobile Money',
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(Icons.check_circle, color: Colors.black),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Book Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isProcessing || _selectedDate == null
-                        ? null
-                        : () => _processBooking(totalPrice),
-                    child: _isProcessing
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text('Confirm & Pay'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Free cancellation up to 24 hours before the experience',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildPriceRow(
-    String label,
-    String value, {
-    bool isBold = false,
-    bool isGreen = false,
-    bool isGrey = false,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            color: isGrey ? Colors.grey[400] : Colors.white,
+  // ── Helpers ───────────────────────────────────────────────
+
+  Widget _sectionTitle(String title) => Text(
+        title,
+        style: const TextStyle(
+            fontSize: 15, fontWeight: FontWeight.bold),
+      );
+
+  Widget _paymentTile(
+      String id, String title, String subtitle, Color color) {
+    final selected = _selectedPayment == id;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedPayment = id),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: selected ? 0.12 : 0.06),
+          border: Border.all(
+            color: selected ? color : Colors.transparent,
+            width: 2,
           ),
+          borderRadius: BorderRadius.circular(12),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            color: isGreen
-                ? Colors.green
-                : (isGrey ? Colors.grey[400] : Colors.white),
-            fontSize: isBold ? 18 : 14,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _processBooking(double amount) async {
-    setState(() => _isProcessing = true);
-
-    // Simulate payment processing
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (mounted) {
-      setState(() => _isProcessing = false);
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Booking Confirmed!'),
-          content: const Text(
-              'Your experience has been booked successfully. You will receive an SMS confirmation shortly.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-              child: const Text('OK'),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: color,
+              child: Text(
+                id == 'mtn' ? 'M' : 'A',
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold)),
+                  Text(subtitle,
+                      style: TextStyle(
+                          color: Colors.grey[600], fontSize: 12)),
+                ],
+              ),
+            ),
+            Icon(
+              selected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off,
+              color: selected ? color : Colors.grey,
             ),
           ],
         ),
-      );
-    }
+      ),
+    );
+  }
+
+  Widget _priceRow(
+    String label,
+    String value, {
+    bool isBold = false,
+    bool isGrey = false,
+    bool isGreen = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style: TextStyle(
+                  fontWeight:
+                      isBold ? FontWeight.bold : FontWeight.normal,
+                  color: isGrey ? Colors.grey[500] : null)),
+          Text(value,
+              style: TextStyle(
+                  fontWeight:
+                      isBold ? FontWeight.bold : FontWeight.normal,
+                  color: isGreen
+                      ? Colors.green
+                      : (isGrey ? Colors.grey[500] : null),
+                  fontSize: isBold ? 16 : 14)),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime d) =>
+      '${_dayName(d.weekday)}, ${d.day} ${_monthName(d.month)} ${d.year}';
+
+  String _dayName(int w) =>
+      ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][w - 1];
+
+  String _monthName(int m) => [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      ][m - 1];
+
+  Future<void> _pickDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (date != null) setState(() => _selectedDate = date);
+  }
+
+  Future<void> _processBooking() async {
+    setState(() => _isProcessing = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    setState(() => _isProcessing = false);
+    _showConfirmation();
+  }
+
+  void _showConfirmation() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        icon: const Icon(Icons.check_circle,
+            color: Colors.green, size: 56),
+        title: const Text('Booking Confirmed!',
+            textAlign: TextAlign.center),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _exp['title'] as String,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${_formatDate(_selectedDate!)} · $_groupSize ${_groupSize == 1 ? 'person' : 'people'}',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Total: RWF ${_fmt(_total)}',
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'You will receive an SMS confirmation shortly.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13),
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                context.pop();
+              },
+              child: const Text('Done'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
