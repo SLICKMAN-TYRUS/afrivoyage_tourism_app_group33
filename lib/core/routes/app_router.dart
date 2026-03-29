@@ -118,7 +118,7 @@ final GoRouter appRouter = GoRouter(
     // Every tab route lives inside here so the nav bar persists across them.
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
-      // TODO: swap the builder below for MainShellPage once it's created.
+  
       // For now it just renders the child directly so routing still works.
       builder: (context, state, child) => child,
       // builder: (context, state, child) => MainShellPage(child: child),
