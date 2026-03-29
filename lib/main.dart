@@ -5,42 +5,24 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
   // Initialize Firebase - Role 4
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
-  runApp(const AfriVoyageApp());
+  runApp(MyApp());
 }
 
-class AfriVoyageApp extends StatelessWidget {
-  const AfriVoyageApp({super.key});
+class MyApp extends StatelessWidget {
+  MyApp({super.key});
+
+  final _appRouter = AppRouter(); // Role 1 provides this
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'AfriVoyage',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green,
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          elevation: 0,
-        ),
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      routerConfig: appRouter,
+      theme: ThemeData(primarySwatch: Colors.green),
+      routerConfig: _appRouter.config(),
     );
   }
 }
