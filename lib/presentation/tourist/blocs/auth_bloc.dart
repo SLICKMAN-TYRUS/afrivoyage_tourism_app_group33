@@ -3,7 +3,10 @@ import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../data/repositories/auth_repository.dart';
 
+// ─────────────────────────────────────────────
 // Events
+// ─────────────────────────────────────────────
+
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
   @override
@@ -20,17 +23,42 @@ class LoginWithEmail extends AuthEvent {
 
 class LoginWithGoogle extends AuthEvent {}
 
-class SignUpWithEmail extends AuthEvent {
+/// Full sign-up with profile information
+class SignUpWithProfile extends AuthEvent {
   final String email;
   final String password;
-  const SignUpWithEmail(this.email, this.password);
+  final String fullName;
+  final String phone;
+  final String dateOfBirth;
+  final String accountType; // 'tourist' | 'provider'
+
+  const SignUpWithProfile({
+    required this.email,
+    required this.password,
+    required this.fullName,
+    required this.phone,
+    required this.dateOfBirth,
+    required this.accountType,
+  });
+
   @override
-  List<Object?> get props => [email, password];
+  List<Object?> get props =>
+      [email, password, fullName, phone, dateOfBirth, accountType];
 }
 
 class Logout extends AuthEvent {}
 
+class SendPasswordReset extends AuthEvent {
+  final String email;
+  const SendPasswordReset(this.email);
+  @override
+  List<Object?> get props => [email];
+}
+
+// ─────────────────────────────────────────────
 // States
+// ─────────────────────────────────────────────
+
 abstract class AuthState extends Equatable {
   const AuthState();
   @override
@@ -55,17 +83,28 @@ class AuthError extends AuthState {
   List<Object?> get props => [message];
 }
 
+class PasswordResetSent extends AuthState {
+  final String email;
+  const PasswordResetSent(this.email);
+  @override
+  List<Object?> get props => [email];
+}
+
+// ─────────────────────────────────────────────
 // BLoC
+// ─────────────────────────────────────────────
+
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRepository _authRepository;
+  final AuthRepository _repo;
 
   AuthBloc({required AuthRepository authRepository})
-      : _authRepository = authRepository,
+      : _repo = authRepository,
         super(AuthInitial()) {
     on<LoginWithEmail>(_onLoginWithEmail);
     on<LoginWithGoogle>(_onLoginWithGoogle);
-    on<SignUpWithEmail>(_onSignUpWithEmail);
+    on<SignUpWithProfile>(_onSignUpWithProfile);
     on<Logout>(_onLogout);
+    on<SendPasswordReset>(_onSendPasswordReset);
   }
 
   Future<void> _onLoginWithEmail(
@@ -74,17 +113,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      final user = await _authRepository.signInWithEmail(
-        event.email,
-        event.password,
-      );
+      final user =
+          await _repo.signInWithEmail(event.email, event.password);
       if (user != null) {
         emit(AuthAuthenticated(user));
       } else {
-        emit(const AuthError('Login failed'));
+        emit(const AuthError('Login failed. Please try again.'));
       }
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_clean(e)));
     }
   }
 
@@ -94,39 +131,60 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      final user = await _authRepository.signInWithGoogle();
+      final user = await _repo.signInWithGoogle();
       if (user != null) {
         emit(AuthAuthenticated(user));
       } else {
-        emit(const AuthError('Google Sign-In cancelled'));
+        emit(const AuthError('Google Sign-In was cancelled.'));
       }
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_clean(e)));
     }
   }
 
-  Future<void> _onSignUpWithEmail(
-    SignUpWithEmail event,
+  Future<void> _onSignUpWithProfile(
+    SignUpWithProfile event,
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
     try {
-      final user = await _authRepository.signUpWithEmail(
-        event.email,
-        event.password,
+      final user = await _repo.signUpWithProfile(
+        email: event.email,
+        password: event.password,
+        fullName: event.fullName,
+        phone: event.phone,
+        dateOfBirth: event.dateOfBirth,
+        accountType: event.accountType,
       );
       if (user != null) {
         emit(AuthAuthenticated(user));
       } else {
-        emit(const AuthError('Sign up failed'));
+        emit(const AuthError('Account creation failed. Please try again.'));
       }
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_clean(e)));
     }
   }
 
   Future<void> _onLogout(Logout event, Emitter<AuthState> emit) async {
-    await _authRepository.signOut();
+    await _repo.signOut();
     emit(AuthInitial());
   }
+
+  Future<void> _onSendPasswordReset(
+    SendPasswordReset event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      await _repo.sendPasswordReset(event.email);
+      emit(PasswordResetSent(event.email));
+    } catch (e) {
+      emit(AuthError(_clean(e)));
+    }
+  }
+
+  /// Strip the "Exception: " prefix Flutter adds when converting to string.
+  String _clean(Object e) =>
+      e.toString().replaceFirst('Exception: ', '');
 }

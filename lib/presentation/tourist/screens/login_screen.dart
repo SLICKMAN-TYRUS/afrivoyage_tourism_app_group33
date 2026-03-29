@@ -15,10 +15,10 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLogin = true;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
-    // always clean up controllers — small thing that matters for memory
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -26,8 +26,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // BlocProvider here so AuthBloc is scoped to this screen only,
-    // not leaked into the whole widget tree
     return BlocProvider(
       create: (_) => AuthBloc(authRepository: AuthRepository()),
       child: BlocListener<AuthBloc, AuthState>(
@@ -51,69 +49,124 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 40),
 
-                  // Logo
+                  // ── Logo ─────────────────────────────────────
                   Center(
                     child: Container(
-                      width: 80,
-                      height: 80,
+                      width: 90,
+                      height: 90,
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.2),
+                        color: Colors.green.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.location_on,
-                        size: 40,
+                        size: 46,
                         color: Colors.green,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // Title
+                  const SizedBox(height: 20),
                   Text(
                     'AfriVoyage',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     'Discover authentic Rwanda experiences',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey,
-                        ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: Colors.grey),
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 36),
 
-                  // Login / Sign Up toggle
+                  // ── Demo / quick-access banner ────────────────
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withValues(alpha: 0.1),
+                      border: Border.all(
+                          color: Colors.green.withValues(alpha: 0.4)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline,
+                            color: Colors.green, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              const Text('Demo Mode',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green,
+                                      fontSize: 13)),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Skip login to explore the app with static data.',
+                                style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => context.go('/home'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.green,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                          ),
+                          child: const Text('Enter',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // ── Login / Sign Up toggle ────────────────────
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey[800],
+                      color: Colors.grey.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
                         Expanded(
                           child: GestureDetector(
-                            onTap: () => setState(() => _isLogin = true),
+                            onTap: () =>
+                                setState(() => _isLogin = true),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 12),
                               decoration: BoxDecoration(
                                 color: _isLogin
                                     ? Colors.green
                                     : Colors.transparent,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius:
+                                    BorderRadius.circular(12),
                               ),
                               child: Text(
                                 'Login',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color:
-                                      _isLogin ? Colors.white : Colors.grey,
+                                  color: _isLogin
+                                      ? Colors.white
+                                      : Colors.grey,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -122,21 +175,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         Expanded(
                           child: GestureDetector(
-                            onTap: () => setState(() => _isLogin = false),
+                            onTap: () =>
+                                setState(() => _isLogin = false),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 12),
                               decoration: BoxDecoration(
                                 color: !_isLogin
                                     ? Colors.green
                                     : Colors.transparent,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius:
+                                    BorderRadius.circular(12),
                               ),
                               child: Text(
                                 'Sign Up',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color:
-                                      !_isLogin ? Colors.white : Colors.grey,
+                                  color: !_isLogin
+                                      ? Colors.white
+                                      : Colors.grey,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -146,9 +203,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
-                  // Email field
+                  // ── Email ─────────────────────────────────────
                   TextField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -157,20 +214,38 @@ class _LoginScreenState extends State<LoginScreen> {
                       prefixIcon: Icon(Icons.email_outlined),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
-                  // Password field
+                  // ── Password ──────────────────────────────────
                   TextField(
                     controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
                       labelText: 'Password',
-                      prefixIcon: Icon(Icons.lock_outline),
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: IconButton(
+                        icon: Icon(_obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined),
+                        onPressed: () => setState(() =>
+                            _obscurePassword = !_obscurePassword),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  if (_isLogin) ...[
+                    const SizedBox(height: 6),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {},
+                        child: const Text('Forgot password?',
+                            style: TextStyle(fontSize: 12)),
+                      ),
+                    ),
+                  ] else
+                    const SizedBox(height: 20),
 
-                  // Submit button — disabled while loading so users can't double-tap
+                  // ── Submit button ─────────────────────────────
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       return ElevatedButton(
@@ -180,14 +255,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (_isLogin) {
                                   context.read<AuthBloc>().add(
                                         LoginWithEmail(
-                                          _emailController.text.trim(),
+                                          _emailController.text
+                                              .trim(),
                                           _passwordController.text,
                                         ),
                                       );
                                 } else {
                                   context.read<AuthBloc>().add(
                                         SignUpWithEmail(
-                                          _emailController.text.trim(),
+                                          _emailController.text
+                                              .trim(),
                                           _passwordController.text,
                                         ),
                                       );
@@ -202,52 +279,59 @@ class _LoginScreenState extends State<LoginScreen> {
                                   color: Colors.white,
                                 ),
                               )
-                            : Text(_isLogin ? 'Login' : 'Create Account'),
+                            : Text(_isLogin
+                                ? 'Login'
+                                : 'Create Account'),
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
-                  // Divider
+                  // ── Or divider ────────────────────────────────
                   Row(
                     children: [
-                      Expanded(child: Divider(color: Colors.grey[700])),
+                      Expanded(
+                          child: Divider(color: Colors.grey[400])),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          'Or continue with',
-                          style: TextStyle(color: Colors.grey[400]),
-                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14),
+                        child: Text('or',
+                            style: TextStyle(
+                                color: Colors.grey[500])),
                       ),
-                      Expanded(child: Divider(color: Colors.grey[700])),
+                      Expanded(
+                          child: Divider(color: Colors.grey[400])),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
-                  // Google Sign In
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      context.read<AuthBloc>().add(LoginWithGoogle());
+                  // ── Google Sign In ────────────────────────────
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      return OutlinedButton.icon(
+                        onPressed: state is AuthLoading
+                            ? null
+                            : () {
+                                context
+                                    .read<AuthBloc>()
+                                    .add(LoginWithGoogle());
+                              },
+                        icon: const Icon(Icons.g_mobiledata,
+                            size: 26),
+                        label: const Text('Continue with Google'),
+                      );
                     },
-                    icon: Image.network(
-                      'https://www.google.com/favicon.ico',
-                      height: 24,
-                      errorBuilder: (_, __, ___) =>
-                          const Icon(Icons.g_mobiledata),
-                    ),
-                    label: const Text('Continue with Google'),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
 
-                  // Terms
+                  // ── Terms ─────────────────────────────────────
                   Text(
-                    'By continuing, you agree to our Terms of Service and Privacy Policy',
+                    'By continuing, you agree to our Terms of Service and Privacy Policy.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.grey[500],
-                      fontSize: 12,
-                    ),
+                        color: Colors.grey[500], fontSize: 11),
                   ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
