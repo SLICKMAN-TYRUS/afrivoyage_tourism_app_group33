@@ -1,60 +1,45 @@
-// All route paths and names live here — one place, no scattered magic strings.
-// If a route ever changes, you only fix it in this file.
+// All route paths and names live here — one source of truth, no magic strings
+// scattered across the codebase. If a path changes, you fix it once, here.
 //
 // Usage:
 //   context.go(RouteNames.home);
 //   context.goNamed(RouteNames.loginName);
-//   context.pushNamed(RouteNames.destinationDetailName,
-//       pathParameters: {'destinationId': id});
+//   context.pushNamed(RouteNames.earningsName);
 
 abstract final class RouteNames {
   RouteNames._();
 
   // ---------------------------------------------------------------------------
-  // Full paths — use these with context.go()
+  // Full paths — use with context.go() / context.push()
   // ---------------------------------------------------------------------------
 
-  static const String splash = '/splash';
-  static const String login = '/login';
-  static const String register = '/register';
-  static const String forgotPassword = '/forgot-password';
-  static const String home = '/home';
-  static const String destinations = '/destinations';
-  static const String trips = '/trips';
-  static const String profile = '/profile';
+  static const String splash   = '/splash';
+  static const String login    = '/login';
+  static const String home     = '/home';
+  static const String bookings = '/bookings';
+  static const String impact   = '/impact';
+  static const String provider = '/provider';
 
-  // Segments are relative — GoRouter appends them to the parent path.
-  // They're separate constants so the router definition stays readable.
-  static const String destinationDetailSegment = ':destinationId';
-  static const String createTripSegment = 'create';
-  static const String tripDetailSegment = ':tripId';
-  static const String settingsSegment = 'settings';
+  // Relative segments — GoRouter appends these to the parent route.
+  // Kept separate so the router definition in app_router.dart stays clean.
+  static const String earningsSegment = 'earnings';
+  static const String listingsSegment = 'listings';
 
-  // Helper methods for paths that need an ID injected.
-  // Way cleaner than building strings inline all over the codebase.
-  static String destinationDetail(String id) => '$destinations/$id';
-  static String tripDetail(String id) => '$trips/$id';
-
-  // Static paths for the sub-routes that don't need dynamic segments
-  static const String createTrip = '$trips/create';
-  static const String settings = '$profile/settings';
+  // Full paths for the sub-routes (handy for context.go() calls)
+  static const String earnings = '$provider/earnings';
+  static const String listings = '$provider/listings';
 
   // ---------------------------------------------------------------------------
-  // Named routes — use these with context.goNamed() / context.pushNamed()
+  // Named routes — prefer these with context.goNamed() / context.pushNamed()
   // ---------------------------------------------------------------------------
-  // Prefer named navigation over path strings where possible.
-  // If the path changes, named routes still work without touching every caller.
+  // Named navigation survives path changes without touching every call site.
 
-  static const String splashName = 'splash';
-  static const String loginName = 'login';
-  static const String registerName = 'register';
-  static const String forgotPasswordName = 'forgotPassword';
-  static const String homeName = 'home';
-  static const String destinationsName = 'destinations';
-  static const String destinationDetailName = 'destinationDetail';
-  static const String tripsName = 'trips';
-  static const String tripDetailName = 'tripDetail';
-  static const String createTripName = 'createTrip';
-  static const String profileName = 'profile';
-  static const String settingsName = 'settings';
+  static const String splashName   = 'splash';
+  static const String loginName    = 'login';
+  static const String homeName     = 'home';
+  static const String bookingsName = 'bookings';
+  static const String impactName   = 'impact';
+  static const String providerName = 'provider';
+  static const String earningsName = 'earnings';
+  static const String listingsName = 'listings';
 }

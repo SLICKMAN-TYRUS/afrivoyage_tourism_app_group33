@@ -3,21 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'route_names.dart';
-import '../../features/auth/presentation/pages/splash_screen.dart';
-import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/auth/presentation/pages/register_page.dart';
-import '../../features/auth/presentation/pages/forgot_password_page.dart';
-import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/destinations/presentation/pages/destinations_page.dart';
-import '../../features/destinations/presentation/pages/destination_detail_page.dart';
-import '../../features/trips/presentation/pages/trips_page.dart';
-import '../../features/trips/presentation/pages/trip_detail_page.dart';
-import '../../features/trips/presentation/pages/create_trip_page.dart';
-import '../../features/profile/presentation/pages/profile_page.dart';
-import '../../features/profile/presentation/pages/settings_page.dart';
-import '../../features/shell/presentation/pages/main_shell_page.dart';
-import '../observers/router_observer.dart';
 import 'error_page.dart';
+import '../observers/router_observer.dart';
+
+// Tourist screens — these already exist in your teammates' code
+import '../../presentation/tourist/screens/login_screen.dart';
+import '../../presentation/tourist/screens/home_screen.dart';
+import '../../presentation/tourist/screens/booking_screen.dart';
+import '../../presentation/tourist/screens/impact_screen.dart';
+
+// Provider screens — already exist too
+import '../../presentation/provider/screens/provider_dashboard.dart';
+import '../../presentation/provider/screens/provider_earnings.dart';
+import '../../presentation/provider/screens/provider_listings.dart';
+
+// Shell (bottom nav wrapper) — you'll create this if it doesn't exist yet
+// import '../../presentation/shared/shell/main_shell_page.dart';
 
 // ---------------------------------------------------------------------------
 // Navigator keys
@@ -25,7 +26,7 @@ import 'error_page.dart';
 
 // Two keys because we have two navigation stacks:
 // - rootNavigatorKey  → full-screen routes (auth, splash, detail pages)
-// - shellNavigatorKey → the bottom-nav tabs (home, destinations, trips, profile)
+// - shellNavigatorKey → the bottom-nav tabs (home, bookings, impact, profile)
 //
 // Without this split, pressing back from a detail page would exit the shell
 // entirely instead of just popping the detail. Annoying bug to debug if you
@@ -37,37 +38,33 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 // Auth stream
 // ---------------------------------------------------------------------------
 
-// GoRouter needs a stream it can listen to so it knows when to re-run redirect().
-// Firebase's authStateChanges() is perfect for this.
+// GoRouter listens to this so it knows when to re-run redirect().
+// Firebase's authStateChanges() is perfect for this — fires on login AND logout.
 Stream<User?> get _authStream => FirebaseAuth.instance.authStateChanges();
 
 // ---------------------------------------------------------------------------
 // appRouter
 // ---------------------------------------------------------------------------
 
-// This is the single GoRouter instance the whole app uses.
-// Route tree:
+// The single GoRouter instance the whole app uses.
+// Route tree (matches your team's existing screens):
 //
 //   /splash
 //   /login
-//   /register
-//   /forgot-password
 //   /shell  ← ShellRoute (bottom nav lives here)
 //     /home
-//     /destinations
-//       /:destinationId   ← pushed above shell, so the nav bar hides
-//     /trips
-//       /create           ← same, slides up like a modal
-//       /:tripId
-//     /profile
-//       /settings
+//     /bookings
+//     /impact
+//     /provider
+//       /earnings
+//       /listings
 //
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: RouteNames.splash,
+  initialLocation: RouteNames.login,
 
-  // Handy during development — prints every navigation event to the console.
-  // Flip this to false before submitting.
+  // Super useful during development — logs every navigation event.
+  // Set to false before the final submission / demo recording.
   debugLogDiagnostics: true,
 
   observers: [RouterObserver()],
@@ -75,32 +72,27 @@ final GoRouter appRouter = GoRouter(
   // ---------------------------------------------------------------------------
   // Auth guard
   // ---------------------------------------------------------------------------
-  // Called on every navigation AND whenever _authStream fires a new event.
-  // Return a path to redirect, or null to let the navigation go through.
+  // Runs on every navigation AND whenever Firebase auth state changes.
+  // Returns a redirect path, or null to let the navigation go through.
   redirect: (BuildContext context, GoRouterState state) {
     final user = FirebaseAuth.instance.currentUser;
 
     final onAuthFlow = {
       RouteNames.login,
-      RouteNames.register,
-      RouteNames.forgotPassword,
       RouteNames.splash,
     }.contains(state.matchedLocation);
 
-    // Not logged in and trying to open a protected screen → send to login
+    // Not logged in and trying to reach a protected screen → back to login
     if (user == null && !onAuthFlow) return RouteNames.login;
 
-    // Already logged in but stuck on the login screen → skip to home
-    // (We leave splash out of this so it can do its own routing logic)
-    if (user != null && onAuthFlow &&
-        state.matchedLocation != RouteNames.splash) {
-      return RouteNames.home;
-    }
+    // Already logged in but sitting on the login screen → skip straight to home
+    if (user != null && onAuthFlow) return RouteNames.home;
 
-    return null; // all good, let it through
+    return null; // all good, carry on
   },
 
-  // Re-run redirect() whenever the auth state changes (login / logout)
+  // Re-evaluates redirect() whenever auth state changes (login / logout).
+  // Without this, logging out won't redirect until the next tap.
   refreshListenable: GoRouterRefreshStream(_authStream),
 
   errorBuilder: (context, state) => ErrorPage(error: state.error),
@@ -109,141 +101,87 @@ final GoRouter appRouter = GoRouter(
   // Routes
   // ---------------------------------------------------------------------------
   routes: [
-    // Splash — first thing the user sees while Firebase warms up
-    GoRoute(
-      path: RouteNames.splash,
-      name: RouteNames.splashName,
-      parentNavigatorKey: _rootNavigatorKey,
-      pageBuilder: (context, state) => _fadeTransitionPage(
-        key: state.pageKey,
-        child: const SplashScreen(),
-      ),
-    ),
 
-    // Login — slides in from the right (feels like going "forward")
+    // Login — the first real screen, slides in from the right
     GoRoute(
       path: RouteNames.login,
       name: RouteNames.loginName,
       parentNavigatorKey: _rootNavigatorKey,
       pageBuilder: (context, state) => _slideTransitionPage(
         key: state.pageKey,
-        child: const LoginPage(),
+        child: const LoginScreen(),
         direction: AxisDirection.right,
       ),
     ),
 
-    // Register — slides in from the left (opposite of login, like a branch)
-    GoRoute(
-      path: RouteNames.register,
-      name: RouteNames.registerName,
-      parentNavigatorKey: _rootNavigatorKey,
-      pageBuilder: (context, state) => _slideTransitionPage(
-        key: state.pageKey,
-        child: const RegisterPage(),
-        direction: AxisDirection.left,
-      ),
-    ),
-
-    // Forgot password — slides up like a sheet, feels less permanent
-    GoRoute(
-      path: RouteNames.forgotPassword,
-      name: RouteNames.forgotPasswordName,
-      parentNavigatorKey: _rootNavigatorKey,
-      pageBuilder: (context, state) => _slideTransitionPage(
-        key: state.pageKey,
-        child: const ForgotPasswordPage(),
-        direction: AxisDirection.up,
-      ),
-    ),
-
-    // Shell — wraps the four main tabs with the bottom navigation bar
+    // Shell — wraps the main tabs with the bottom navigation bar.
+    // Every tab route lives inside here so the nav bar persists across them.
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
-      builder: (context, state, child) => MainShellPage(child: child),
+      // TODO: swap the builder below for MainShellPage once it's created.
+      // For now it just renders the child directly so routing still works.
+      builder: (context, state, child) => child,
+      // builder: (context, state, child) => MainShellPage(child: child),
       routes: [
-        // Home tab — no transition, instant switch feels snappier for tabs
+
+        // Home tab — no transition between tabs feels snappier
         GoRoute(
           path: RouteNames.home,
           name: RouteNames.homeName,
           pageBuilder: (context, state) =>
-              _noTransitionPage(key: state.pageKey, child: const HomePage()),
+              _noTransitionPage(key: state.pageKey, child: const HomeScreen()),
         ),
 
-        // Destinations tab
+        // Bookings tab — maps to booking_screen.dart
         GoRoute(
-          path: RouteNames.destinations,
-          name: RouteNames.destinationsName,
+          path: RouteNames.bookings,
+          name: RouteNames.bookingsName,
           pageBuilder: (context, state) => _noTransitionPage(
             key: state.pageKey,
-            child: const DestinationsPage(),
+            child: const BookingScreen(),
+          ),
+        ),
+
+        // Impact tab — maps to impact_screen.dart
+        GoRoute(
+          path: RouteNames.impact,
+          name: RouteNames.impactName,
+          pageBuilder: (context, state) => _noTransitionPage(
+            key: state.pageKey,
+            child: const ImpactScreen(),
+          ),
+        ),
+
+        // Provider dashboard tab — pushes sub-screens above the shell
+        GoRoute(
+          path: RouteNames.provider,
+          name: RouteNames.providerName,
+          pageBuilder: (context, state) => _noTransitionPage(
+            key: state.pageKey,
+            child: const ProviderDashboard(),
           ),
           routes: [
-            // Detail page breaks out of the shell so the bottom nav hides —
-            // gives it that immersive full-screen feel
-            GoRoute(
-              path: RouteNames.destinationDetailSegment,
-              name: RouteNames.destinationDetailName,
-              parentNavigatorKey: _rootNavigatorKey,
-              pageBuilder: (context, state) {
-                final id = state.pathParameters['destinationId']!;
-                return _fadeTransitionPage(
-                  key: state.pageKey,
-                  child: DestinationDetailPage(destinationId: id),
-                );
-              },
-            ),
-          ],
-        ),
 
-        // Trips tab
-        GoRoute(
-          path: RouteNames.trips,
-          name: RouteNames.tripsName,
-          pageBuilder: (context, state) =>
-              _noTransitionPage(key: state.pageKey, child: const TripsPage()),
-          routes: [
-            // Create trip slides up — modal-style makes sense for a form
+            // Provider earnings — breaks out of shell for full-screen focus
             GoRoute(
-              path: RouteNames.createTripSegment,
-              name: RouteNames.createTripName,
+              path: RouteNames.earningsSegment,
+              name: RouteNames.earningsName,
               parentNavigatorKey: _rootNavigatorKey,
               pageBuilder: (context, state) => _slideTransitionPage(
                 key: state.pageKey,
-                child: const CreateTripPage(),
-                direction: AxisDirection.up,
+                child: const ProviderEarnings(),
+                direction: AxisDirection.left,
               ),
             ),
-            // Trip detail — same full-screen break as destination detail
-            GoRoute(
-              path: RouteNames.tripDetailSegment,
-              name: RouteNames.tripDetailName,
-              parentNavigatorKey: _rootNavigatorKey,
-              pageBuilder: (context, state) {
-                final id = state.pathParameters['tripId']!;
-                return _fadeTransitionPage(
-                  key: state.pageKey,
-                  child: TripDetailPage(tripId: id),
-                );
-              },
-            ),
-          ],
-        ),
 
-        // Profile tab
-        GoRoute(
-          path: RouteNames.profile,
-          name: RouteNames.profileName,
-          pageBuilder: (context, state) =>
-              _noTransitionPage(key: state.pageKey, child: const ProfilePage()),
-          routes: [
-            // Settings pushes above the shell — cleaner than keeping the nav bar
+            // Provider listings — same pattern
             GoRoute(
-              path: RouteNames.settingsSegment,
-              name: RouteNames.settingsName,
+              path: RouteNames.listingsSegment,
+              name: RouteNames.listingsName,
               parentNavigatorKey: _rootNavigatorKey,
               pageBuilder: (context, state) => _slideTransitionPage(
                 key: state.pageKey,
-                child: const SettingsPage(),
+                child: const ProviderListings(),
                 direction: AxisDirection.left,
               ),
             ),
@@ -258,14 +196,14 @@ final GoRouter appRouter = GoRouter(
 // Page transition helpers
 // ---------------------------------------------------------------------------
 
-// No animation — best for tab switches. Instant feel is intentional here;
-// animations between tabs look jittery and slow the app down mentally.
+// No animation — intentional for tab switches.
+// Instant feels snappier; animated tab switches look jittery.
 Page<void> _noTransitionPage({required LocalKey key, required Widget child}) {
   return NoTransitionPage<void>(key: key, child: child);
 }
 
-// Fade in — clean and neutral. Good for splash → home and detail pages
-// where you want presence without direction bias.
+// Fade in — neutral and clean. Good for splash → home and any detail page
+// where you want the screen to appear without a direction bias.
 Page<void> _fadeTransitionPage({required LocalKey key, required Widget child}) {
   return CustomTransitionPage<void>(
     key: key,
@@ -281,19 +219,19 @@ Page<void> _fadeTransitionPage({required LocalKey key, required Widget child}) {
 }
 
 // Directional slide — each direction carries meaning:
-//   left  → going deeper / forward
-//   right → going back (auth screen returning to login)
-//   up    → modal / overlay (forms, forgot password)
+//   left  → going deeper / forward into a sub-screen
+//   right → returning (e.g. auth flow going back to login)
+//   up    → modal / overlay feel (forms, bottom-sheet style pages)
 Page<void> _slideTransitionPage({
   required LocalKey key,
   required Widget child,
   required AxisDirection direction,
 }) {
   final startOffset = switch (direction) {
-    AxisDirection.left => const Offset(1.0, 0.0),
+    AxisDirection.left  => const Offset(1.0, 0.0),
     AxisDirection.right => const Offset(-1.0, 0.0),
-    AxisDirection.up => const Offset(0.0, 1.0),
-    AxisDirection.down => const Offset(0.0, -1.0),
+    AxisDirection.up    => const Offset(0.0, 1.0),
+    AxisDirection.down  => const Offset(0.0, -1.0),
   };
 
   return CustomTransitionPage<void>(
@@ -305,7 +243,9 @@ Page<void> _slideTransitionPage({
         position: Tween<Offset>(
           begin: startOffset,
           end: Offset.zero,
-        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+        ).animate(
+          CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+        ),
         child: child,
       );
     },
@@ -316,9 +256,9 @@ Page<void> _slideTransitionPage({
 // GoRouterRefreshStream
 // ---------------------------------------------------------------------------
 
-// Bridges a Stream to ChangeNotifier so GoRouter knows to re-run redirect()
-// when the stream emits. Without this, logging out wouldn't kick the user
-// back to the login screen until the next navigation event.
+// Bridges a Dart Stream to ChangeNotifier so GoRouter knows to re-run
+// redirect() whenever the stream emits. Without this wiring, logging out
+// wouldn't bounce the user back to login until their next navigation tap.
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
     notifyListeners();
