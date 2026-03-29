@@ -107,7 +107,13 @@ All operations reflect immediately in Firebase Firestore.
 
 ---
 
-## Database Architecture
+## Database Architecture and  ERD
+### Visual ERD
+The full, rubric-compliant Entity-Relationship Diagram (ERD) is included as an image:
+
+**[docs/ERD_Diagram.png](docs/ERD_Diagram.png)**
+
+This diagram clearly shows all entities, attributes, relationships, and cardinality as required by the project rubric.
 
 ### Firestore Collections
 
@@ -134,14 +140,12 @@ All operations reflect immediately in Firebase Firestore.
 **5. safety_alerts** (Emergency Notifications)
 - Fields: type, severity, message, geoFence (array of GeoPoints), expiresAt
 
-### Relationships
-- users (1) → experiences (N)
-- users (1) → bookings (N) [as tourist]
-- users (1) → bookings (N) [as provider]
-- experiences (1) → bookings (N)
-- bookings (1) → reviews (1)
-
----
+### Relationships (see ERD for visual)
+- users (1) → experiences (N)  *(provider creates)*
+- users (1) → bookings (N)  *(tourist books)*
+- experiences (1) → bookings (N)  *(experience booked)*
+- bookings (1) → reviews (1)  *(booking reviewed)*
+- safety_alerts: standalone, admin broadcast
 
 ## Security Implementation
 
@@ -204,23 +208,25 @@ Login screen rendering and interaction
 Authentication flow state changes
 Provider dashboard components
 
-Quality Gates
+---
 
-flutter analyze    # Must show: No issues found
-flutter test       # All tests passing
-dart format .      # Code formatted
+## Quality Gates
 
+- `flutter analyze`    # Must show: **No issues found**
+- `flutter test`       # All tests passing
+- `dart format .`      # Code formatted
 
+---
 
+## Setup Instructions
 
-Setup Instructions
-Prerequisites
-Flutter SDK >= 3.0.0
-Android Studio or VS Code
-Firebase CLI
-Installation
-Clone repository:
+**Prerequisites:**
+- Flutter SDK >= 3.0.0
+- Android Studio or VS Code
+- Firebase CLI
 
+**Installation:**
+```sh
 git clone https://github.com/SLICKMAN-TYRUS/afrivoyage_tourism_app_group33.git
 cd afrivoyage_tourism_app_group33
 
