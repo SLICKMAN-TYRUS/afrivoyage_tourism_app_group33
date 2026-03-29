@@ -10,6 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  shared_preferences: ^2.2.2
+  google_fonts: ^6.3.1
   
   # Firebase - Role 4 manages these
   firebase_core: ^2.24.2
@@ -35,3 +37,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+
+
+  

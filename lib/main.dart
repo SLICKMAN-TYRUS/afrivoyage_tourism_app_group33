@@ -2,15 +2,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:afrivoyage/core/routes/app_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'routes/app_router.dart';
 import 'presentation/shared/theme/theme_cubit.dart';
 import 'core/observers/app_bloc_observer.dart';
-import 'firebase_options.dart';
 
 // Starting point of the whole app. Keep this file lean —
-// if you're sneaking business logic in here, we need to talk.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -31,9 +28,7 @@ void main() async {
   );
 
   // Firebase has to go first — pretty much everything else depends on it.
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp();
 
   // Load prefs before runApp, not inside the widget tree.
   // If we await it later we get a flash of the wrong theme on startup — not great.
@@ -62,7 +57,6 @@ class AfriVoyageApp extends StatelessWidget {
           create: (_) => ThemeCubit(sharedPreferences),
         ),
 
-        // Add the team's existing BLoCs here as we wire things up.
         // Keep them here — not buried inside individual screens.
         // BlocProvider<AuthBloc>(create: (_) => AuthBloc()),
         // BlocProvider<ExperienceBloc>(create: (_) => ExperienceBloc()),
@@ -124,7 +118,7 @@ class AfriVoyageApp extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
       ),
 
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -184,7 +178,7 @@ class AfriVoyageApp extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
       ),
 
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         color: const Color(0xFF1E1E1E),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

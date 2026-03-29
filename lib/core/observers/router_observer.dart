@@ -1,15 +1,8 @@
-// Place this file at: lib/core/observers/router_observer.dart
 
 import 'package:flutter/material.dart';
 
 // Logs every navigation event to the debug console.
-// Attach it to GoRouter via the observers list in app_router.dart.
-//
-// Right now it just prints — but when we hook up Firebase Analytics,
-// this is the right place to send screen_view events instead of
-// scattering analytics calls across every page's initState.
-class RouterObserver extends NavigatorObserver {
-  const RouterObserver();
+// Attach to GoRouter via the observers list in app_router.dart.
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -41,4 +34,3 @@ class RouterObserver extends NavigatorObserver {
       '${route.settings.name ?? route.runtimeType}',
     );
   }
-}

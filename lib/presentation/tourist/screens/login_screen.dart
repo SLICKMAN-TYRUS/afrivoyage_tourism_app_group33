@@ -220,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     'https://www.google.com/favicon.ico',
                     height: 24,
                     errorBuilder: (_, __, ___) =>
-                        const Icon(Icons.g_mobile_friendly),
+                        const Icon(Icons.g_mobiledata),
                   ),
                   label: const Text('Continue with Google'),
                 ),
