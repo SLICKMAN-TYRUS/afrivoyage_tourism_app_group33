@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -17,14 +18,31 @@ import '../../presentation/provider/screens/provider_listings.dart';
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
+Stream<User?> get _authStream => FirebaseAuth.instance.authStateChanges();
+
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: RouteNames.login,
   debugLogDiagnostics: true,
   observers: [RouterObserver()],
+
+  // ── Auth guard ─────────────────────────────────────────────
+  redirect: (context, state) {
+    final user = FirebaseAuth.instance.currentUser;
+    final onAuth = state.matchedLocation == RouteNames.login;
+
+    if (user == null && !onAuth) return RouteNames.login;
+    if (user != null && onAuth) return RouteNames.home;
+    return null;
+  },
+
+  // Re-evaluates redirect whenever Firebase auth state changes
+  refreshListenable: _GoRouterRefreshStream(_authStream),
+
   errorBuilder: (context, state) => ErrorPage(error: state.error),
+
   routes: [
-    // Login screen — full screen, no shell
+    // ── Login ───────────────────────────────────────────────
     GoRoute(
       path: RouteNames.login,
       name: RouteNames.loginName,
@@ -36,7 +54,7 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // Booking detail — full screen above shell
+    // ── Booking detail (full-screen, above shell) ───────────
     GoRoute(
       path: '/booking/:id',
       parentNavigatorKey: _rootNavigatorKey,
@@ -47,7 +65,7 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // Shell wrapping all tab routes
+    // ── Shell (bottom-nav tabs) ─────────────────────────────
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) => child,
@@ -55,8 +73,10 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: RouteNames.home,
           name: RouteNames.homeName,
-          pageBuilder: (context, state) =>
-              _noTransitionPage(key: state.pageKey, child: const HomeScreen()),
+          pageBuilder: (context, state) => _noTransitionPage(
+            key: state.pageKey,
+            child: const HomeScreen(),
+          ),
         ),
         GoRoute(
           path: RouteNames.bookings,
@@ -109,9 +129,10 @@ final GoRouter appRouter = GoRouter(
   ],
 );
 
-Page<void> _noTransitionPage({required LocalKey key, required Widget child}) {
-  return NoTransitionPage<void>(key: key, child: child);
-}
+// ── Page transition helpers ────────────────────────────────────
+
+Page<void> _noTransitionPage({required LocalKey key, required Widget child}) =>
+    NoTransitionPage<void>(key: key, child: child);
 
 Page<void> _slideTransitionPage({
   required LocalKey key,
@@ -128,13 +149,29 @@ Page<void> _slideTransitionPage({
     key: key,
     child: child,
     transitionDuration: const Duration(milliseconds: 350),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return SlideTransition(
-        position: Tween<Offset>(begin: startOffset, end: Offset.zero).animate(
-          CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
-        ),
-        child: child,
-      );
-    },
+    transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+        SlideTransition(
+      position: Tween<Offset>(begin: startOffset, end: Offset.zero).animate(
+        CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+      ),
+      child: child,
+    ),
   );
+}
+
+// ── Bridges Firebase auth stream → GoRouter ChangeNotifier ────
+
+class _GoRouterRefreshStream extends ChangeNotifier {
+  _GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _sub = stream.asBroadcastStream().listen((_) => notifyListeners());
+  }
+
+  late final dynamic _sub;
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
+  }
 }
