@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class ProviderListings extends StatelessWidget {
   const ProviderListings({super.key});
@@ -96,7 +95,7 @@ class ProviderListings extends StatelessWidget {
             trailing: Switch(
               value: isAvailable,
               onChanged: (value) {},
-              activeColor: Colors.green,
+              activeThumbColor: Colors.green,
             ),
           ),
           const Divider(height: 1),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/booking_repository.dart';
 import '../../../data/repositories/experience_repository.dart';
@@ -346,7 +345,7 @@ class _ProviderDashboardView extends StatelessWidget {
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.2),
+            color: statusColor.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(_getStatusIcon(status), color: statusColor),
@@ -365,7 +364,7 @@ class _ProviderDashboardView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.2),
+                color: statusColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(

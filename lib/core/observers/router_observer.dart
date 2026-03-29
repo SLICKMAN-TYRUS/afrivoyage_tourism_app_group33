@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 
-// Logs every navigation event to the debug console.
-// Attach to GoRouter via the observers list in app_router.dart.
+class RouterObserver extends NavigatorObserver {
+  RouterObserver();
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -34,3 +33,4 @@ import 'package:flutter/material.dart';
       '${route.settings.name ?? route.runtimeType}',
     );
   }
+}

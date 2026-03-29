@@ -2,10 +2,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:afrivoyage/core/routes/app_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'presentation/shared/theme/theme_cubit.dart';
-import 'core/observers/app_bloc_observer.dart';
+import 'package:afrivoyage/core/routes/app_router.dart';
+import 'package:afrivoyage/core/observers/app_bloc_observer.dart';
+import 'package:afrivoyage/presentation/shared/theme/theme_cubit.dart';
+// keeping DefaultFirebaseOptions from their branch — more explicit and safer
+import 'package:afrivoyage/firebase_options.dart';
 
 // Starting point of the whole app. Keep this file lean —
 void main() async {
@@ -28,7 +30,10 @@ void main() async {
   );
 
   // Firebase has to go first — pretty much everything else depends on it.
-  await Firebase.initializeApp();
+  // Using DefaultFirebaseOptions so it works correctly on both Android and iOS.
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // Load prefs before runApp, not inside the widget tree.
   // If we await it later we get a flash of the wrong theme on startup — not great.
@@ -57,6 +62,7 @@ class AfriVoyageApp extends StatelessWidget {
           create: (_) => ThemeCubit(sharedPreferences),
         ),
 
+        // Add the team's BLoCs here as we wire things up.
         // Keep them here — not buried inside individual screens.
         // BlocProvider<AuthBloc>(create: (_) => AuthBloc()),
         // BlocProvider<ExperienceBloc>(create: (_) => ExperienceBloc()),
@@ -128,7 +134,7 @@ class AfriVoyageApp extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: seedColor,
           foregroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(48), // Material tap target minimum
+          minimumSize: const Size.fromHeight(48),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       ),

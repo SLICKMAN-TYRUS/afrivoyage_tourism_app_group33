@@ -2,52 +2,80 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepository {
-  final FirebaseAuth _firebaseAuth;
+  final FirebaseAuth _auth;
   final GoogleSignIn _googleSignIn;
 
+  // injectable constructor from your branch — better for testing
   AuthRepository({FirebaseAuth? firebaseAuth, GoogleSignIn? googleSignIn})
-      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+      : _auth = firebaseAuth ?? FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn();
 
-  User? get currentUser => _firebaseAuth.currentUser;
+  User? get currentUser => _auth.currentUser;
+
+  // auth state stream from their branch — useful for the GoRouter refresh
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   Future<User?> signInWithEmail(String email, String password) async {
-    final credentials = await _firebaseAuth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    return credentials.user;
+    try {
+      final result = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return result.user;
+    } catch (e) {
+      throw Exception('Login failed: $e');
+    }
   }
 
   Future<User?> signUpWithEmail(String email, String password) async {
-    final credentials = await _firebaseAuth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    return credentials.user;
+    try {
+      final result = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return result.user;
+    } catch (e) {
+      throw Exception('Sign up failed: $e');
+    }
   }
 
   Future<User?> signInWithGoogle() async {
-    final googleUser = await _googleSignIn.signIn();
-    if (googleUser == null) {
-      return null;
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return null;
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final result = await _auth.signInWithCredential(credential);
+      return result.user;
+    } catch (e) {
+      throw Exception('Google Sign-In failed: $e');
     }
-
-    final googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    final userCredential =
-        await _firebaseAuth.signInWithCredential(credential);
-    return userCredential.user;
   }
 
   Future<void> signOut() async {
     await Future.wait([
-      _firebaseAuth.signOut(),
+      _auth.signOut(),
       _googleSignIn.signOut(),
     ]);
   }
+}
+
+// Validation helpers — kept from their branch, handy for form validation
+bool validateEmail(String email) {
+  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+  return emailRegex.hasMatch(email);
+}
+
+bool validatePassword(String password) {
+  if (password.length < 8) return false;
+  if (!password.contains(RegExp(r'[A-Z]'))) return false;
+  if (!password.contains(RegExp(r'[a-z]'))) return false;
+  if (!password.contains(RegExp(r'[0-9]'))) return false;
+  return true;
 }
