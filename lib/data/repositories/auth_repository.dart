@@ -2,11 +2,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepository {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseAuth _auth;
+  final GoogleSignIn _googleSignIn;
+
+  // injectable constructor from your branch — better for testing
+  AuthRepository({FirebaseAuth? firebaseAuth, GoogleSignIn? googleSignIn})
+      : _auth = firebaseAuth ?? FirebaseAuth.instance,
+        _googleSignIn = googleSignIn ?? GoogleSignIn();
 
   User? get currentUser => _auth.currentUser;
 
+  // auth state stream from their branch — useful for the GoRouter refresh
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   Future<User?> signInWithEmail(String email, String password) async {
@@ -53,12 +59,14 @@ class AuthRepository {
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
-    await _googleSignIn.signOut();
+    await Future.wait([
+      _auth.signOut(),
+      _googleSignIn.signOut(),
+    ]);
   }
 }
 
-// Validation methods for email and password
+// Validation helpers — kept from their branch, handy for form validation
 bool validateEmail(String email) {
   final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
   return emailRegex.hasMatch(email);

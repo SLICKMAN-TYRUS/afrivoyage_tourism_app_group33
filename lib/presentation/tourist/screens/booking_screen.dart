@@ -4,8 +4,8 @@ import '../../../data/repositories/experience_repository.dart';
 import '../../../data/repositories/payment_repository.dart';
 
 class BookingScreen extends StatefulWidget {
-  final String experienceId;
-  const BookingScreen({super.key, required this.experienceId});
+  final String? experienceId;
+  const BookingScreen({super.key, this.experienceId});
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
@@ -20,12 +20,24 @@ class _BookingScreenState extends State<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final experienceId = widget.experienceId;
+    if (experienceId == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Book Experience'),
+        ),
+        body: const Center(
+          child: Text('No experience selected. Please choose an experience first.'),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Book Experience'),
       ),
       body: FutureBuilder<DocumentSnapshot>(
-        future: _experienceRepo.getExperienceById(widget.experienceId),
+        future: _experienceRepo.getExperienceById(experienceId),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
