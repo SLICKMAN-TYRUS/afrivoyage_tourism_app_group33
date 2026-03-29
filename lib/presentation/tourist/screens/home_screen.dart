@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/cubits/settings_cubit.dart';
+import '../../../data/repositories/auth_repository.dart';
 
 // ─────────────────────────────────────────────
 // Static experience data
@@ -509,15 +511,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.grey[500], fontSize: 11)),
                       ],
                     ),
-                    ElevatedButton.icon(
-                      onPressed: () =>
-                          context.push('/booking/${exp['id']}'),
-                      icon: const Icon(Icons.calendar_month,
-                          size: 15),
-                      label: const Text('Book Now'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 10),
+                    Flexible(
+                      fit: FlexFit.loose,
+                      child: ElevatedButton.icon(
+                        onPressed: () =>
+                            context.push('/booking/${exp['id']}'),
+                        icon: const Icon(Icons.calendar_month,
+                            size: 15),
+                        label: const Text('Book Now'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                        ),
                       ),
                     ),
                   ],
@@ -1088,6 +1093,12 @@ class _HomeScreenState extends State<HomeScreen> {
   // ══════════════════════════════════════════════════════════
 
   Widget _buildProfileTab() {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    final displayName = firebaseUser?.displayName?.isNotEmpty == true
+        ? firebaseUser!.displayName!
+        : 'User';
+    final email = firebaseUser?.email ?? '';
+
     return BlocBuilder<SettingsCubit, SettingsState>(
       builder: (context, settings) {
         return ListView(
@@ -1108,27 +1119,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   CircleAvatar(
                     radius: 34,
                     backgroundColor: Colors.white,
-                    child: Icon(Icons.person,
-                        size: 38, color: Colors.green[700]),
+                    child: Text(
+                      displayName.isNotEmpty
+                          ? displayName[0].toUpperCase()
+                          : 'U',
+                      style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green[700]),
+                    ),
                   ),
                   const SizedBox(width: 16),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Demo User',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
-                      SizedBox(height: 4),
-                      Text('demo@afrivoyage.rw',
-                          style: TextStyle(
-                              color: Colors.white70, fontSize: 13)),
-                      SizedBox(height: 2),
-                      Text('Tourist Account',
-                          style: TextStyle(
-                              color: Colors.white54, fontSize: 12)),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(displayName,
+                            style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 4),
+                        Text(email,
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 13),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 2),
+                        const Text('Tourist Account',
+                            style: TextStyle(
+                                color: Colors.white54, fontSize: 12)),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -1240,28 +1264,29 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showProfileDialog(BuildContext ctx) {
+    final user = FirebaseAuth.instance.currentUser;
+    final name = user?.displayName?.isNotEmpty == true
+        ? user!.displayName!
+        : 'User';
+    final email = user?.email ?? '—';
+
     showDialog(
       context: ctx,
       builder: (_) => AlertDialog(
         title: const Text('My Profile'),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.person),
-              title: Text('Demo User'),
-              subtitle: Text('Tourist'),
+              leading: const Icon(Icons.person),
+              title: Text(name),
+              subtitle: const Text('Tourist'),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.email),
-              title: Text('demo@afrivoyage.rw'),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.phone),
-              title: Text('+250 788 000 000'),
+              leading: const Icon(Icons.email),
+              title: Text(email),
             ),
           ],
         ),
@@ -1323,9 +1348,13 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () => Navigator.pop(ctx),
               child: const Text('Cancel')),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              ctx.go('/login');
+              await AuthRepository().signOut();
+              // The auth guard in app_router will redirect to /login
+              // automatically once Firebase reports the signed-out state.
+              // We also navigate explicitly in case the listener is slow.
+              if (ctx.mounted) ctx.go('/login');
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Logout'),
