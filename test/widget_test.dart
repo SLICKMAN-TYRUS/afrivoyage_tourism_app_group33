@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:afrivoyage/data/repositories/auth_repository.dart';
-import 'package:afrivoyage/presentation/tourist/blocs/auth_bloc.dart';
+import 'package:afrivoyage/presentation/tourist/blocs/auth/auth_bloc.dart';
 import 'package:afrivoyage/presentation/tourist/screens/login_screen.dart';
 
 void main() {
