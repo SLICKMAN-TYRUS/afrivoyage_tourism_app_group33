@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/routes/route_names.dart';
 import '../../../data/repositories/auth_repository.dart';
+import '../../../l10n/app_localizations.dart';
 import '../blocs/auth_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -35,7 +37,11 @@ class _LoginScreenState extends State<LoginScreen>
       child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            context.go('/home');
+            if (state.accountType == 'provider') {
+              context.go(RouteNames.provider);
+            } else {
+              context.go(RouteNames.home);
+            }
           } else if (state is PasswordResetSent) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -55,7 +61,9 @@ class _LoginScreenState extends State<LoginScreen>
             );
           }
         },
-        child: Scaffold(
+        child: Builder(builder: (context) {
+          final l10n = AppLocalizations.of(context)!;
+          return Scaffold(
           body: SafeArea(
             child: Column(
               children: [
@@ -79,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        'AfriVoyage',
+                        l10n.appTitle,
                         style: Theme.of(context)
                             .textTheme
                             .headlineMedium
@@ -87,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Discover authentic Rwanda experiences',
+                        l10n.appTagline,
                         textAlign: TextAlign.center,
                         style: Theme.of(context)
                             .textTheme
@@ -114,9 +122,9 @@ class _LoginScreenState extends State<LoginScreen>
                           unselectedLabelColor: Colors.grey,
                           labelStyle: const TextStyle(
                               fontWeight: FontWeight.w600),
-                          tabs: const [
-                            Tab(text: 'Login'),
-                            Tab(text: 'Sign Up'),
+                          tabs: [
+                            Tab(text: l10n.login),
+                            Tab(text: l10n.signUp),
                           ],
                         ),
                       ),
@@ -137,7 +145,8 @@ class _LoginScreenState extends State<LoginScreen>
               ],
             ),
           ),
-        ),
+        );
+        }),
       ),
     );
   }
@@ -169,6 +178,7 @@ class _LoginFormState extends State<_LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Form(
@@ -183,13 +193,13 @@ class _LoginFormState extends State<_LoginForm> {
               controller: _emailCtrl,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(
-                labelText: 'Email address',
-                prefixIcon: Icon(Icons.email_outlined),
+              decoration: InputDecoration(
+                labelText: l10n.emailAddress,
+                prefixIcon: const Icon(Icons.email_outlined),
               ),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) {
-                  return 'Email is required';
+                  return '${l10n.emailAddress} is required';
                 }
                 if (!validateEmail(v)) {
                   return 'Enter a valid email address';
@@ -206,7 +216,7 @@ class _LoginFormState extends State<_LoginForm> {
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _submit(context),
               decoration: InputDecoration(
-                labelText: 'Password',
+                labelText: l10n.password,
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   icon: Icon(_obscure
@@ -218,7 +228,7 @@ class _LoginFormState extends State<_LoginForm> {
               ),
               validator: (v) {
                 if (v == null || v.isEmpty) {
-                  return 'Password is required';
+                  return '${l10n.password} is required';
                 }
                 return null;
               },
@@ -229,8 +239,8 @@ class _LoginFormState extends State<_LoginForm> {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () => _showForgotPassword(context),
-                child: const Text('Forgot password?',
-                    style: TextStyle(fontSize: 12)),
+                child: Text(l10n.forgotPassword,
+                    style: const TextStyle(fontSize: 12)),
               ),
             ),
 
@@ -248,7 +258,7 @@ class _LoginFormState extends State<_LoginForm> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text('Login'),
+                    : Text(l10n.login),
               ),
             ),
             const SizedBox(height: 20),
@@ -266,7 +276,7 @@ class _LoginFormState extends State<_LoginForm> {
                         .read<AuthBloc>()
                         .add(LoginWithGoogle()),
                 icon: const Icon(Icons.g_mobiledata, size: 26),
-                label: const Text('Continue with Google'),
+                label: Text(l10n.continueWithGoogle),
               ),
             ),
             const SizedBox(height: 24),

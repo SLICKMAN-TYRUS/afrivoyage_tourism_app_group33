@@ -71,9 +71,10 @@ class AuthLoading extends AuthState {}
 
 class AuthAuthenticated extends AuthState {
   final User user;
-  const AuthAuthenticated(this.user);
+  final String accountType;
+  const AuthAuthenticated(this.user, {this.accountType = 'tourist'});
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [user, accountType];
 }
 
 class AuthError extends AuthState {
@@ -116,7 +117,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user =
           await _repo.signInWithEmail(event.email, event.password);
       if (user != null) {
-        emit(AuthAuthenticated(user));
+        final profile = await _repo.getUserProfile(user.uid);
+        final accountType =
+            (profile?['accountType'] as String?) ?? 'tourist';
+        emit(AuthAuthenticated(user, accountType: accountType));
       } else {
         emit(const AuthError('Login failed. Please try again.'));
       }
@@ -133,7 +137,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final user = await _repo.signInWithGoogle();
       if (user != null) {
-        emit(AuthAuthenticated(user));
+        final profile = await _repo.getUserProfile(user.uid);
+        final accountType =
+            (profile?['accountType'] as String?) ?? 'tourist';
+        emit(AuthAuthenticated(user, accountType: accountType));
       } else {
         emit(const AuthError('Google Sign-In was cancelled.'));
       }
@@ -157,7 +164,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         accountType: event.accountType,
       );
       if (user != null) {
-        emit(AuthAuthenticated(user));
+        emit(AuthAuthenticated(user, accountType: event.accountType));
       } else {
         emit(const AuthError('Account creation failed. Please try again.'));
       }

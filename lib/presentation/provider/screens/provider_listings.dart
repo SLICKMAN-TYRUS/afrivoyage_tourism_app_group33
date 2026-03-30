@@ -358,7 +358,7 @@ class _ProviderListingsState extends State<ProviderListings> {
 
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('Edit Listing'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -379,7 +379,7 @@ class _ProviderListingsState extends State<ProviderListings> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
+              onPressed: () => Navigator.pop(dialogCtx),
               child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
@@ -395,7 +395,7 @@ class _ProviderListingsState extends State<ProviderListings> {
                       (m) => '${m[1]},',
                     );
               });
-              Navigator.pop(ctx);
+              Navigator.pop(dialogCtx);
             },
             child: const Text('Save'),
           ),
@@ -408,7 +408,7 @@ class _ProviderListingsState extends State<ProviderListings> {
       BuildContext ctx, Map<String, dynamic> l) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: Text(l['title'] as String),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -428,7 +428,7 @@ class _ProviderListingsState extends State<ProviderListings> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
+              onPressed: () => Navigator.pop(dialogCtx),
               child: const Text('Close'))
         ],
       ),
@@ -449,18 +449,18 @@ class _ProviderListingsState extends State<ProviderListings> {
   void _confirmDelete(BuildContext ctx, int index) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('Delete Listing'),
         content: Text(
             'Remove "${_listings[index]['title']}"? This cannot be undone.'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
+              onPressed: () => Navigator.pop(dialogCtx),
               child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               setState(() => _listings.removeAt(index));
-              Navigator.pop(ctx);
+              Navigator.pop(dialogCtx);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Listing deleted.'),
