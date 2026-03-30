@@ -2,12 +2,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:afrivoyage/core/routes/app_router.dart';
 import 'package:afrivoyage/core/observers/app_bloc_observer.dart';
 import 'package:afrivoyage/core/cubits/settings_cubit.dart';
 import 'package:afrivoyage/presentation/shared/theme/theme_cubit.dart';
 import 'package:afrivoyage/firebase_options.dart';
+import 'package:afrivoyage/l10n/app_localizations.dart';
+import 'package:afrivoyage/l10n/fallback_localizations.dart';
 
 // Starting point of the whole app. Keep this file lean —
 void main() async {
@@ -67,17 +70,36 @@ class AfriVoyageApp extends StatelessWidget {
       ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
-          return MaterialApp.router(
-            title: 'AfriVoyage',
-            debugShowCheckedModeBanner: false,
-            theme: _buildLightTheme(),
-            darkTheme: _buildDarkTheme(),
+          return BlocBuilder<SettingsCubit, SettingsState>(
+            builder: (context, settings) {
+              return MaterialApp.router(
+                title: 'AfriVoyage',
+                debugShowCheckedModeBanner: false,
+                theme: _buildLightTheme(),
+                darkTheme: _buildDarkTheme(),
+                themeMode: themeMode,
 
-            // Comes straight from ThemeCubit which reads SharedPreferences —
-            // user picks dark mode once, it sticks forever.
-            themeMode: themeMode,
+                // Locale is driven by SettingsCubit, persisted via SharedPreferences.
+                locale: Locale(settings.language),
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                  // Fallbacks for locales not covered by the Global delegates
+                  // (e.g. Kinyarwanda). Must come AFTER the Global delegates.
+                  FallbackMaterialLocalizationsDelegate(),
+                  FallbackCupertinoLocalizationsDelegate(),
+                ],
+                supportedLocales: const [
+                  Locale('en'),
+                  Locale('fr'),
+                  Locale('rw'),
+                ],
 
-            routerConfig: appRouter,
+                routerConfig: appRouter,
+              );
+            },
           );
         },
       ),

@@ -1,0 +1,162 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "AfriVoyage",
+  "@appTitle": { "description": "App name" },
+
+  "appTagline": "Discover authentic Rwanda experiences",
+  "@appTagline": { "description": "Subtitle shown on the login screen" },
+
+  "login": "Login",
+  "@login": {},
+
+  "signUp": "Sign Up",
+  "@signUp": {},
+
+  "emailAddress": "Email address",
+  "@emailAddress": {},
+
+  "password": "Password",
+  "@password": {},
+
+  "forgotPassword": "Forgot password?",
+  "@forgotPassword": {},
+
+  "createAccount": "Create Account",
+  "@createAccount": {},
+
+  "continueWithGoogle": "Continue with Google",
+  "@continueWithGoogle": {},
+
+  "signUpWithGoogle": "Sign up with Google",
+  "@signUpWithGoogle": {},
+
+  "resetPassword": "Reset Password",
+  "@resetPassword": {},
+
+  "resetPasswordHint": "Enter your email address and we will send you a link to reset your password.",
+  "@resetPasswordHint": {},
+
+  "sendResetLink": "Send Reset Link",
+  "@sendResetLink": {},
+
+  "iAma": "I am a",
+  "@iAma": {},
+
+  "tourist": "Tourist",
+  "@tourist": {},
+
+  "provider": "Provider",
+  "@provider": {},
+
+  "touristSubtitle": "Explore & book experiences",
+  "@touristSubtitle": {},
+
+  "providerSubtitle": "List & manage experiences",
+  "@providerSubtitle": {},
+
+  "fullName": "Full Name",
+  "@fullName": {},
+
+  "phoneNumber": "Phone Number",
+  "@phoneNumber": {},
+
+  "dateOfBirth": "Date of Birth",
+  "@dateOfBirth": {},
+
+  "confirmPassword": "Confirm Password",
+  "@confirmPassword": {},
+
+  "agreeToTerms": "I agree to the Terms of Service and Privacy Policy",
+  "@agreeToTerms": {},
+
+  "navHome": "Home",
+  "@navHome": {},
+
+  "navExplore": "Explore",
+  "@navExplore": {},
+
+  "navBookings": "Bookings",
+  "@navBookings": {},
+
+  "navImpact": "Impact",
+  "@navImpact": {},
+
+  "navProfile": "Profile",
+  "@navProfile": {},
+
+  "discoverRwanda": "Discover Rwanda",
+  "@discoverRwanda": {},
+
+  "explore": "Explore",
+  "@explore": {},
+
+  "myBookings": "My Bookings",
+  "@myBookings": {},
+
+  "yourImpact": "Your Impact",
+  "@yourImpact": {},
+
+  "profileTab": "Profile",
+  "@profileTab": {},
+
+  "settings": "Settings",
+  "@settings": {},
+
+  "darkMode": "Dark Mode",
+  "@darkMode": {},
+
+  "darkModeSubtitle": "Toggle between light and dark theme",
+  "@darkModeSubtitle": {},
+
+  "language": "Language",
+  "@language": {},
+
+  "offlineMode": "Offline Mode",
+  "@offlineMode": {},
+
+  "offlineModeSubtitle": "Enable offline access to bookings",
+  "@offlineModeSubtitle": {},
+
+  "myProfile": "My Profile",
+  "@myProfile": {},
+
+  "logout": "Logout",
+  "@logout": {},
+
+  "logoutConfirm": "Are you sure you want to logout?",
+  "@logoutConfirm": {},
+
+  "cancel": "Cancel",
+  "@cancel": {},
+
+  "close": "Close",
+  "@close": {},
+
+  "save": "Save",
+  "@save": {},
+
+  "bookNow": "Book Now",
+  "@bookNow": {},
+
+  "verified": "Verified",
+  "@verified": {},
+
+  "perPerson": "per person",
+  "@perPerson": {},
+
+  "providerDashboard": "Provider Dashboard",
+  "@providerDashboard": {},
+
+  "welcomeBack": "Welcome back,",
+  "@welcomeBack": {},
+
+  "dashboard": "Dashboard",
+  "@dashboard": {},
+
+  "listings": "Listings",
+  "@listings": {},
+
+  "earnings": "Earnings",
+  "@earnings": {}
+}

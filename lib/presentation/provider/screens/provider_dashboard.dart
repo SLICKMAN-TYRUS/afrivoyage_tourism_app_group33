@@ -479,13 +479,13 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
   void _showAvailabilityDialog(BuildContext ctx) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('Set Availability'),
         content: const Text(
             'Availability management is coming soon.\nYou\'ll be able to block dates and set capacity.'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
+              onPressed: () => Navigator.pop(dialogCtx),
               child: const Text('OK'))
         ],
       ),
@@ -495,7 +495,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
   void _showSupportDialog(BuildContext ctx) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('Provider Support'),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
@@ -513,7 +513,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
+              onPressed: () => Navigator.pop(dialogCtx),
               child: const Text('Close'))
         ],
       ),

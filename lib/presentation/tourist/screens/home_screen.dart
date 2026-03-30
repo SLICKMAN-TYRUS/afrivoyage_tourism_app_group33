@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/cubits/settings_cubit.dart';
+import '../../../core/routes/route_names.dart';
 import '../../../data/repositories/auth_repository.dart';
+import '../../shared/theme/theme_cubit.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ─────────────────────────────────────────────
 // Static experience data
@@ -139,13 +142,29 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedCategory = 'All';
   final _searchController = TextEditingController();
 
-  static const _tabTitles = [
-    'Discover Rwanda',
-    'Explore',
-    'My Bookings',
-    'Your Impact',
-    'Profile',
+  List<String> _tabTitles(AppLocalizations l10n) => [
+    l10n.discoverRwanda,
+    l10n.explore,
+    l10n.myBookings,
+    l10n.yourImpact,
+    l10n.profileTab,
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _redirectProviderOnRestart();
+  }
+
+  Future<void> _redirectProviderOnRestart() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final profile = await AuthRepository().getUserProfile(user.uid);
+    final role = (profile?['accountType'] as String?) ?? 'tourist';
+    if (role == 'provider' && mounted) {
+      context.go(RouteNames.provider);
+    }
+  }
 
   @override
   void dispose() {
@@ -170,9 +189,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_tabTitles[_selectedIndex]),
+        title: Text(_tabTitles(l10n)[_selectedIndex]),
         actions: [
           if (_selectedIndex == 0)
             IconButton(
@@ -1099,6 +1119,7 @@ class _HomeScreenState extends State<HomeScreen> {
         : 'User';
     final email = firebaseUser?.email ?? '';
 
+    final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
     return BlocBuilder<SettingsCubit, SettingsState>(
       builder: (context, settings) {
         return ListView(
@@ -1164,9 +1185,10 @@ class _HomeScreenState extends State<HomeScreen> {
               secondary: const Icon(Icons.dark_mode),
               title: const Text('Dark Mode'),
               subtitle: const Text('Toggle light / dark theme'),
-              value: settings.isDarkMode,
-              onChanged: (v) =>
-                  context.read<SettingsCubit>().toggleTheme(v),
+              value: isDark,
+              onChanged: (v) => context.read<ThemeCubit>().setThemeMode(
+                    v ? ThemeMode.dark : ThemeMode.light,
+                  ),
             ),
             ListTile(
               leading: const Icon(Icons.language),
@@ -1272,7 +1294,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('My Profile'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1292,7 +1314,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
+              onPressed: () => Navigator.pop(dialogCtx),
               child: const Text('Close'))
         ],
       ),
@@ -1302,7 +1324,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showSupportDialog(BuildContext ctx) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('Help & Support'),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
@@ -1320,7 +1342,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
+              onPressed: () => Navigator.pop(dialogCtx),
               child: const Text('Close'))
         ],
       ),
@@ -1340,21 +1362,19 @@ class _HomeScreenState extends State<HomeScreen> {
   void _confirmLogout(BuildContext ctx) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('Logout'),
         content: const Text('Are you sure you want to logout?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
+              onPressed: () => Navigator.pop(dialogCtx),
               child: const Text('Cancel')),
           TextButton(
             onPressed: () async {
-              Navigator.pop(ctx);
+              Navigator.pop(dialogCtx);
               await AuthRepository().signOut();
-              // The auth guard in app_router will redirect to /login
-              // automatically once Firebase reports the signed-out state.
-              // We also navigate explicitly in case the listener is slow.
-              if (ctx.mounted) ctx.go('/login');
+              // Router redirect handles navigation to /login automatically
+              // once Firebase reports the signed-out state.
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Logout'),
