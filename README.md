@@ -374,7 +374,7 @@ Full explanation: **[docs/security_rules_explanation.txt](docs/security_rules_ex
 ```
 test/
 ├── unit/
-│   ├── payment_repository_test.dart   # 8 % platform fee + zero-amount edge case
+│   ├── payment_repository_test.dart   # 8 % platform fee + zero-amountedge case
 │   ├── booking_validation_test.dart   # Price × group-size calculation, past-date rejection
 │   └── date_utils_test.dart           # Date formatting, days-until-experience delta
 ├── widget/
