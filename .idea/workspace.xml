@@ -6,13 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="76385bb1-2f50-41a9-a4b3-94ed7b68c646" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/routes/app_router.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/routes/app_router.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/repositories/auth_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/repositories/auth_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/repositories/booking_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/repositories/booking_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/repositories/experience_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/repositories/experience_repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/cubits/settings_cubit.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/cubits/settings_cubit.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/provider/screens/provider_dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/provider/screens/provider_dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/provider/screens/provider_listings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/provider/screens/provider_listings.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/tourist/blocs/auth_bloc.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/tourist/blocs/auth_bloc.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/presentation/tourist/screens/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/tourist/screens/home_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/presentation/tourist/screens/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/tourist/screens/login_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/login_screen_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/test/login_screen_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/tourist/screens/profile_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/tourist/screens/profile_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
