@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ImpactScreen extends StatelessWidget {
   const ImpactScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Impact'),
+        title: Text(l10n.yourImpact),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -25,7 +27,7 @@ class ImpactScreen extends StatelessWidget {
                     const Icon(Icons.favorite, color: Colors.white, size: 40),
                     const SizedBox(height: 16),
                     Text(
-                      'Your Impact',
+                      l10n.yourImpact,
                       style:
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 color: Colors.white,
@@ -34,7 +36,7 @@ class ImpactScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'See the difference you\'re making in local communities',
+                      l10n.seeTheDifference,
                       style: TextStyle(color: Colors.green[100]),
                     ),
                   ],
@@ -50,7 +52,7 @@ class ImpactScreen extends StatelessWidget {
                   child: _buildStatCard(
                     icon: Icons.people,
                     value: '5',
-                    label: 'Families supported',
+                    label: l10n.familiesSupported,
                     color: Colors.blue,
                   ),
                 ),
@@ -59,7 +61,7 @@ class ImpactScreen extends StatelessWidget {
                   child: _buildStatCard(
                     icon: Icons.attach_money,
                     value: '250K',
-                    label: 'Local earnings (RWF)',
+                    label: l10n.localEarnings,
                     color: Colors.orange,
                   ),
                 ),
@@ -72,7 +74,7 @@ class ImpactScreen extends StatelessWidget {
                   child: _buildStatCard(
                     icon: Icons.check_circle,
                     value: '3',
-                    label: 'Verified bookings',
+                    label: l10n.verifiedBookings,
                     color: Colors.green,
                   ),
                 ),
@@ -81,7 +83,7 @@ class ImpactScreen extends StatelessWidget {
                   child: _buildStatCard(
                     icon: Icons.timer,
                     value: '18',
-                    label: 'Hours experienced',
+                    label: l10n.hoursExperienced,
                     color: Colors.purple,
                   ),
                 ),
@@ -91,16 +93,16 @@ class ImpactScreen extends StatelessWidget {
 
             // Breakdown
             Text(
-              'Community Impact Breakdown',
+              l10n.communityImpactBreakdown,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 16),
-            _buildImpactBar('Conservation efforts', 0.35, Colors.green),
-            _buildImpactBar('Local guide support', 0.40, Colors.orange),
-            _buildImpactBar('Women\'s cooperatives', 0.15, Colors.purple),
-            _buildImpactBar('Community development', 0.10, Colors.blue),
+            _buildImpactBar(l10n.conservationEfforts, 0.35, Colors.green),
+            _buildImpactBar(l10n.localGuideSupport, 0.40, Colors.orange),
+            _buildImpactBar(l10n.womensCooperatives, 0.15, Colors.purple),
+            _buildImpactBar(l10n.communityDevelopment, 0.10, Colors.blue),
           ],
         ),
       ),

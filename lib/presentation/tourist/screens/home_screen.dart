@@ -139,16 +139,26 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   String _searchQuery = '';
+  // Internal filter key stays in English to match experience data
   String _selectedCategory = 'All';
   final _searchController = TextEditingController();
 
   List<String> _tabTitles(AppLocalizations l10n) => [
-    l10n.discoverRwanda,
-    l10n.explore,
-    l10n.myBookings,
-    l10n.yourImpact,
-    l10n.profileTab,
-  ];
+        l10n.discoverRwanda,
+        l10n.explore,
+        l10n.myBookings,
+        l10n.yourImpact,
+        l10n.profileTab,
+      ];
+
+  // Maps internal English key -> localized display label
+  Map<String, String> _categoryLabels(AppLocalizations l10n) => {
+        'All': l10n.categoryAll,
+        'Nature': l10n.categoryNature,
+        'Culture': l10n.categoryCulture,
+        'Food & Drink': l10n.categoryFoodDrink,
+        'Adventure': l10n.categoryAdventure,
+      };
 
   @override
   void initState() {
@@ -214,31 +224,31 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (i) => setState(() => _selectedIndex = i),
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: l10n.navHome,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            activeIcon: Icon(Icons.explore),
-            label: 'Explore',
+            icon: const Icon(Icons.explore_outlined),
+            activeIcon: const Icon(Icons.explore),
+            label: l10n.navExplore,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            activeIcon: Icon(Icons.calendar_today),
-            label: 'Bookings',
+            icon: const Icon(Icons.calendar_today_outlined),
+            activeIcon: const Icon(Icons.calendar_today),
+            label: l10n.navBookings,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outline),
-            activeIcon: Icon(Icons.favorite),
-            label: 'Impact',
+            icon: const Icon(Icons.favorite_outline),
+            activeIcon: const Icon(Icons.favorite),
+            label: l10n.navImpact,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            icon: const Icon(Icons.person_outline),
+            activeIcon: const Icon(Icons.person),
+            label: l10n.navProfile,
           ),
         ],
       ),
@@ -250,6 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ══════════════════════════════════════════════════════════
 
   void _showNotifications(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -261,14 +272,17 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Notifications',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(l10n.notifications,
+                style: const TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            _notifTile(Icons.check_circle, Colors.green, 'Booking confirmed',
+            _notifTile(Icons.check_circle, Colors.green,
+                l10n.bookingConfirmedNotif,
                 'Gorilla Trekking on Apr 15 is confirmed!'),
-            _notifTile(Icons.star, Colors.amber, 'New review',
+            _notifTile(Icons.star, Colors.amber, l10n.newReview,
                 'Your Coffee Farm Tour received a 5-star review.'),
-            _notifTile(Icons.info_outline, Colors.blue, 'Reminder',
+            _notifTile(Icons.info_outline, Colors.blue,
+                l10n.reminder,
                 'Lake Kivu Cruise in 3 days. Don\'t forget sunscreen!'),
           ],
         ),
@@ -285,8 +299,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Icon(icon, color: color, size: 20),
       ),
       title: Text(title,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-      subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
+          style: const TextStyle(
+              fontWeight: FontWeight.w600, fontSize: 13)),
+      subtitle:
+          Text(subtitle, style: const TextStyle(fontSize: 12)),
     );
   }
 
@@ -295,7 +311,9 @@ class _HomeScreenState extends State<HomeScreen> {
   // ══════════════════════════════════════════════════════════
 
   Widget _buildHomeTab() {
+    final l10n = AppLocalizations.of(context)!;
     final filtered = _filtered;
+    final catLabels = _categoryLabels(l10n);
     return Column(
       children: [
         // Search bar
@@ -305,7 +323,7 @@ class _HomeScreenState extends State<HomeScreen> {
             controller: _searchController,
             onChanged: (v) => setState(() => _searchQuery = v),
             decoration: InputDecoration(
-              hintText: 'Search experiences, locations…',
+              hintText: l10n.searchHint,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
@@ -320,14 +338,21 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 10),
-        // Category chips
+        // Category chips — internal keys stay English, display uses l10n
         SizedBox(
           height: 40,
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: ['All', 'Nature', 'Culture', 'Food & Drink', 'Adventure']
-                .map(_buildCategoryChip)
+            children: [
+              'All',
+              'Nature',
+              'Culture',
+              'Food & Drink',
+              'Adventure',
+            ]
+                .map((key) =>
+                    _buildCategoryChip(key, catLabels[key] ?? key))
                 .toList(),
           ),
         ),
@@ -339,9 +364,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.search_off, size: 56, color: Colors.grey[400]),
+                  Icon(Icons.search_off,
+                      size: 56, color: Colors.grey[400]),
                   const SizedBox(height: 12),
-                  Text('No experiences found',
+                  Text(l10n.noExperiencesFound,
                       style: TextStyle(color: Colors.grey[500])),
                   const SizedBox(height: 8),
                   TextButton(
@@ -352,7 +378,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         _selectedCategory = 'All';
                       });
                     },
-                    child: const Text('Clear filters'),
+                    child: Text(l10n.clearFilters),
                   ),
                 ],
               ),
@@ -361,7 +387,8 @@ class _HomeScreenState extends State<HomeScreen> {
         else
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+              padding:
+                  const EdgeInsets.fromLTRB(16, 4, 16, 16),
               itemCount: filtered.length,
               itemBuilder: (context, i) =>
                   _buildExperienceCard(context, filtered[i]),
@@ -371,26 +398,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCategoryChip(String label) {
-    final selected = _selectedCategory == label;
+  Widget _buildCategoryChip(String key, String displayLabel) {
+    final selected = _selectedCategory == key;
     final primary = Theme.of(context).colorScheme.primary;
     return GestureDetector(
-      onTap: () => setState(() => _selectedCategory = label),
+      onTap: () => setState(() => _selectedCategory = key),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? primary : Colors.transparent,
-          border: Border.all(color: selected ? primary : Colors.grey),
+          border:
+              Border.all(color: selected ? primary : Colors.grey),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
-          label,
+          displayLabel,
           style: TextStyle(
-            color: selected
-                ? Colors.white
-                : Colors.grey[600],
+            color: selected ? Colors.white : Colors.grey[600],
             fontWeight:
                 selected ? FontWeight.w600 : FontWeight.normal,
             fontSize: 13,
@@ -402,8 +429,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildExperienceCard(
       BuildContext context, Map<String, dynamic> exp) {
+    final l10n = AppLocalizations.of(context)!;
     final price = exp['priceRWF'] as double;
-    final verified = exp['verified'] as bool;
+    final isVerified = exp['verified'] as bool;
     final bg = Color(exp['color'] as int);
 
     return Card(
@@ -422,8 +450,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(_categoryIcon(exp['category'] as String),
-                        size: 52, color: Colors.white38),
+                    Icon(
+                        _categoryIcon(exp['category'] as String),
+                        size: 52,
+                        color: Colors.white38),
                     const SizedBox(height: 6),
                     Text(exp['location'] as String,
                         style: const TextStyle(
@@ -435,17 +465,18 @@ class _HomeScreenState extends State<HomeScreen> {
               Positioned(
                 top: 10,
                 left: 10,
-                child: _badge(exp['category'] as String, Colors.black45),
+                child: _badge(
+                    exp['category'] as String, Colors.black45),
               ),
               // Verified badge
-              if (verified)
+              if (isVerified)
                 Positioned(
                   top: 10,
                   right: 10,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _badge('Verified', Colors.green,
+                      _badge(l10n.verified, Colors.green,
                           icon: Icons.verified),
                     ],
                   ),
@@ -454,7 +485,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Positioned(
                 bottom: 10,
                 right: 10,
-                child: _badge('⏱ ${exp['duration']}', Colors.black45),
+                child: _badge(
+                    '⏱ ${exp['duration']}', Colors.black45),
               ),
             ],
           ),
@@ -471,7 +503,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Text(
                         exp['title'] as String,
                         style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.bold),
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -486,7 +519,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontSize: 13)),
                         Text(' (${exp['reviewCount']})',
                             style: TextStyle(
-                                color: Colors.grey[500], fontSize: 11)),
+                                color: Colors.grey[500],
+                                fontSize: 11)),
                       ],
                     ),
                   ],
@@ -507,8 +541,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   exp['description'] as String,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style:
-                      TextStyle(color: Colors.grey[600], fontSize: 13),
+                  style: TextStyle(
+                      color: Colors.grey[600], fontSize: 13),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -522,23 +556,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color:
-                                Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary,
                           ),
                         ),
-                        Text('per person',
+                        Text(l10n.perPerson,
                             style: TextStyle(
-                                color: Colors.grey[500], fontSize: 11)),
+                                color: Colors.grey[500],
+                                fontSize: 11)),
                       ],
                     ),
                     Flexible(
                       fit: FlexFit.loose,
                       child: ElevatedButton.icon(
-                        onPressed: () =>
-                            context.push('/booking/${exp['id']}'),
+                        onPressed: () => context
+                            .push('/booking/${exp['id']}'),
                         icon: const Icon(Icons.calendar_month,
                             size: 15),
-                        label: const Text('Book Now'),
+                        label: Text(l10n.bookNow),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 10),
@@ -557,8 +593,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _badge(String text, Color bg, {IconData? icon}) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(12),
@@ -608,6 +644,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ══════════════════════════════════════════════════════════
 
   Widget _buildExploreTab() {
+    final l10n = AppLocalizations.of(context)!;
     final topRated = _kExperiences
         .where((e) => (e['rating'] as double) >= 4.7)
         .toList();
@@ -633,14 +670,14 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Explore Rwanda',
-                    style: TextStyle(
+                Text(l10n.exploreRwanda,
+                    style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: Colors.white)),
                 const SizedBox(height: 6),
-                const Text('The Land of a Thousand Hills',
-                    style: TextStyle(color: Colors.white70)),
+                Text(l10n.landOfThousandHills,
+                    style: const TextStyle(color: Colors.white70)),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -656,24 +693,26 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // Top Rated
-          _sectionHeader('Top Rated Experiences', () {
+          _sectionHeader(l10n.topRatedExperiences, () {
             setState(() {
               _selectedIndex = 0;
               _selectedCategory = 'All';
             });
-          }),
+          }, l10n),
           SizedBox(
             height: 175,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children:
-                  topRated.map((e) => _featuredCard(context, e)).toList(),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16),
+              children: topRated
+                  .map((e) => _featuredCard(context, e))
+                  .toList(),
             ),
           ),
 
           const SizedBox(height: 24),
-          _sectionHeader('Destinations', null),
+          _sectionHeader(l10n.destinations, null, l10n),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -685,10 +724,10 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisSpacing: 12,
               childAspectRatio: 1.6,
               children: [
-                _destTile('Kigali', Icons.location_city, 0xFF1565C0,
-                    'Culture & History'),
-                _destTile('Volcanoes NP', Icons.terrain, 0xFF1B5E20,
-                    'Gorillas & Trekking'),
+                _destTile('Kigali', Icons.location_city,
+                    0xFF1565C0, 'Culture & History'),
+                _destTile('Volcanoes NP', Icons.terrain,
+                    0xFF1B5E20, 'Gorillas & Trekking'),
                 _destTile('Nyungwe', Icons.forest, 0xFF2E7D32,
                     'Rainforest & Primates'),
                 _destTile('Lake Kivu', Icons.water, 0xFF01579B,
@@ -698,12 +737,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           const SizedBox(height: 24),
-          _sectionHeader('Travel Tips', null),
-          _tipCard(Icons.wb_sunny_outlined, 'Best Time to Visit',
+          _sectionHeader(l10n.travelTips, null, l10n),
+          _tipCard(Icons.wb_sunny_outlined, l10n.bestTimeToVisit,
               'June–September (dry season) is ideal for trekking and outdoor activities.'),
-          _tipCard(Icons.health_and_safety_outlined, 'Health & Safety',
+          _tipCard(Icons.health_and_safety_outlined,
+              l10n.healthAndSafety,
               'Yellow fever vaccination required. Malaria prophylaxis recommended outside Kigali.'),
-          _tipCard(Icons.attach_money, 'Currency',
+          _tipCard(Icons.attach_money, l10n.currencyTip,
               'Rwandan Franc (RWF). Cards accepted in Kigali; carry cash for rural areas.'),
           const SizedBox(height: 24),
         ],
@@ -713,7 +753,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _statPill(IconData icon, String value, String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding:
+          const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
@@ -733,7 +774,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _sectionHeader(String title, VoidCallback? onSeeAll) {
+  Widget _sectionHeader(
+      String title, VoidCallback? onSeeAll, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -745,13 +787,14 @@ class _HomeScreenState extends State<HomeScreen> {
           if (onSeeAll != null)
             TextButton(
                 onPressed: onSeeAll,
-                child: const Text('See all')),
+                child: Text(l10n.seeAll)),
         ],
       ),
     );
   }
 
-  Widget _featuredCard(BuildContext context, Map<String, dynamic> exp) {
+  Widget _featuredCard(
+      BuildContext context, Map<String, dynamic> exp) {
     return GestureDetector(
       onTap: () => context.push('/booking/${exp['id']}'),
       child: Container(
@@ -793,7 +836,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _destTile(String name, IconData icon, int color, String sub) {
+  Widget _destTile(
+      String name, IconData icon, int color, String sub) {
     return Container(
       decoration: BoxDecoration(
         color: Color(color),
@@ -843,23 +887,24 @@ class _HomeScreenState extends State<HomeScreen> {
   // ══════════════════════════════════════════════════════════
 
   Widget _buildBookingsTab() {
+    final l10n = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         // Summary row
         Row(
           children: [
-            _bookingStat('Upcoming', '2', Colors.blue),
+            _bookingStat(l10n.upcoming, '2', Colors.blue),
             const SizedBox(width: 10),
-            _bookingStat('Completed', '1', Colors.green),
+            _bookingStat(l10n.completed, '1', Colors.green),
             const SizedBox(width: 10),
-            _bookingStat('Pending', '1', Colors.orange),
+            _bookingStat(l10n.pending, '1', Colors.orange),
           ],
         ),
         const SizedBox(height: 20),
-        const Text('All Bookings',
-            style:
-                TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        Text(l10n.allBookings,
+            style: const TextStyle(
+                fontSize: 15, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         ..._kBookings.map(_buildBookingCard),
       ],
@@ -959,8 +1004,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         'RWF ${_fmt((b['total'] as int).toDouble())}',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color:
-                                Theme.of(context).colorScheme.primary),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary),
                       ),
                     ],
                   ),
@@ -978,6 +1024,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ══════════════════════════════════════════════════════════
 
   Widget _buildImpactTab() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -994,7 +1041,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.white, size: 34),
                   const SizedBox(height: 12),
                   Text(
-                    'Your Impact',
+                    l10n.yourImpact,
                     style: Theme.of(context)
                         .textTheme
                         .headlineSmall
@@ -1005,7 +1052,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'See the difference you\'re making in local communities',
+                    l10n.seeTheDifference,
                     style: TextStyle(color: Colors.green[100]),
                   ),
                 ],
@@ -1016,14 +1063,12 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             children: [
               Expanded(
-                  child: _statCard(
-                      Icons.people, '5', 'Families supported',
-                      Colors.blue)),
+                  child: _statCard(Icons.people, '5',
+                      l10n.familiesSupported, Colors.blue)),
               const SizedBox(width: 12),
               Expanded(
-                  child: _statCard(
-                      Icons.savings, '250K', 'Local earnings (RWF)',
-                      Colors.orange)),
+                  child: _statCard(Icons.savings, '250K',
+                      l10n.localEarnings, Colors.orange)),
             ],
           ),
           const SizedBox(height: 12),
@@ -1031,23 +1076,22 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Expanded(
                   child: _statCard(Icons.check_circle, '3',
-                      'Verified bookings', Colors.green)),
+                      l10n.verifiedBookings, Colors.green)),
               const SizedBox(width: 12),
               Expanded(
-                  child: _statCard(
-                      Icons.timer, '18', 'Hours experienced',
-                      Colors.purple)),
+                  child: _statCard(Icons.timer, '18',
+                      l10n.hoursExperienced, Colors.purple)),
             ],
           ),
           const SizedBox(height: 28),
-          const Text('Community Impact Breakdown',
-              style: TextStyle(
+          Text(l10n.communityImpactBreakdown,
+              style: const TextStyle(
                   fontSize: 15, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          _impactBar('Conservation efforts', 0.35, Colors.green),
-          _impactBar('Local guide support', 0.40, Colors.orange),
-          _impactBar('Women\'s cooperatives', 0.15, Colors.purple),
-          _impactBar('Community development', 0.10, Colors.blue),
+          _impactBar(l10n.conservationEfforts, 0.35, Colors.green),
+          _impactBar(l10n.localGuideSupport, 0.40, Colors.orange),
+          _impactBar(l10n.womensCooperatives, 0.15, Colors.purple),
+          _impactBar(l10n.communityDevelopment, 0.10, Colors.blue),
         ],
       ),
     );
@@ -1113,13 +1157,16 @@ class _HomeScreenState extends State<HomeScreen> {
   // ══════════════════════════════════════════════════════════
 
   Widget _buildProfileTab() {
+    final l10n = AppLocalizations.of(context)!;
     final firebaseUser = FirebaseAuth.instance.currentUser;
-    final displayName = firebaseUser?.displayName?.isNotEmpty == true
-        ? firebaseUser!.displayName!
-        : 'User';
+    final displayName =
+        firebaseUser?.displayName?.isNotEmpty == true
+            ? firebaseUser!.displayName!
+            : 'User';
     final email = firebaseUser?.email ?? '';
 
-    final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
+    final isDark =
+        context.watch<ThemeCubit>().state == ThemeMode.dark;
     return BlocBuilder<SettingsCubit, SettingsState>(
       builder: (context, settings) {
         return ListView(
@@ -1165,13 +1212,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 4),
                         Text(email,
                             style: const TextStyle(
-                                color: Colors.white70, fontSize: 13),
+                                color: Colors.white70,
+                                fontSize: 13),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 2),
-                        const Text('Tourist Account',
-                            style: TextStyle(
-                                color: Colors.white54, fontSize: 12)),
+                        Text(l10n.touristAccount,
+                            style: const TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12)),
                       ],
                     ),
                   ),
@@ -1180,23 +1229,24 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             // Preferences
-            _groupLabel('Preferences'),
+            _groupLabel(l10n.preferences),
             SwitchListTile(
               secondary: const Icon(Icons.dark_mode),
-              title: const Text('Dark Mode'),
-              subtitle: const Text('Toggle light / dark theme'),
+              title: Text(l10n.darkMode),
+              subtitle: Text(l10n.darkModeToggle),
               value: isDark,
-              onChanged: (v) => context.read<ThemeCubit>().setThemeMode(
-                    v ? ThemeMode.dark : ThemeMode.light,
-                  ),
+              onChanged: (v) =>
+                  context.read<ThemeCubit>().setThemeMode(
+                        v ? ThemeMode.dark : ThemeMode.light,
+                      ),
             ),
             ListTile(
               leading: const Icon(Icons.language),
-              title: const Text('Language'),
+              title: Text(l10n.language),
               subtitle: Text({
                 'en': 'English',
                 'fr': 'Français',
-                'rw': 'Kinyarwanda'
+                'rw': 'Kinyarwanda',
               }[settings.language] ??
                   'English'),
               trailing: DropdownButton<String>(
@@ -1216,36 +1266,37 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SwitchListTile(
               secondary: const Icon(Icons.offline_bolt_outlined),
-              title: const Text('Offline Mode'),
-              subtitle: const Text('Cache bookings for offline access'),
+              title: Text(l10n.offlineMode),
+              subtitle: Text(l10n.offlineModeSubtitle),
               value: settings.offlineMode,
               onChanged: (v) =>
                   context.read<SettingsCubit>().toggleOfflineMode(v),
             ),
 
             const Divider(height: 8),
-            _groupLabel('Account'),
+            _groupLabel(l10n.account),
             ListTile(
               leading: const Icon(Icons.person_outline),
-              title: const Text('My Profile'),
+              title: Text(l10n.myProfile),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
               onTap: () => _showProfileDialog(context),
             ),
             ListTile(
               leading: const Icon(Icons.bookmark_outline),
-              title: const Text('My Bookings'),
+              title: Text(l10n.myBookings),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-              onTap: () => setState(() => _selectedIndex = 2),
+              onTap: () =>
+                  setState(() => _selectedIndex = 2),
             ),
             ListTile(
               leading: const Icon(Icons.help_outline),
-              title: const Text('Help & Support'),
+              title: Text(l10n.helpSupport),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
               onTap: () => _showSupportDialog(context),
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),
-              title: const Text('About AfriVoyage'),
+              title: Text(l10n.aboutAfriVoyage),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
               onTap: () => _showAboutDialog(context),
             ),
@@ -1253,8 +1304,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const Divider(height: 8),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Logout',
-                  style: TextStyle(color: Colors.red)),
+              title: Text(l10n.logout,
+                  style: const TextStyle(color: Colors.red)),
               onTap: () => _confirmLogout(context),
             ),
 
@@ -1286,6 +1337,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showProfileDialog(BuildContext ctx) {
+    final l10n = AppLocalizations.of(ctx)!;
     final user = FirebaseAuth.instance.currentUser;
     final name = user?.displayName?.isNotEmpty == true
         ? user!.displayName!
@@ -1295,7 +1347,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: ctx,
       builder: (dialogCtx) => AlertDialog(
-        title: const Text('My Profile'),
+        title: Text(l10n.myProfile),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1303,7 +1355,7 @@ class _HomeScreenState extends State<HomeScreen> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.person),
               title: Text(name),
-              subtitle: const Text('Tourist'),
+              subtitle: Text(l10n.tourist),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -1315,35 +1367,37 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogCtx),
-              child: const Text('Close'))
+              child: Text(l10n.close))
         ],
       ),
     );
   }
 
   void _showSupportDialog(BuildContext ctx) {
+    final l10n = AppLocalizations.of(ctx)!;
     showDialog(
       context: ctx,
       builder: (dialogCtx) => AlertDialog(
-        title: const Text('Help & Support'),
-        content: const Column(
+        title: Text(l10n.helpSupport),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Contact us:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            Text('📧  support@afrivoyage.rw'),
-            SizedBox(height: 4),
-            Text('📞  +250 788 123 456'),
-            SizedBox(height: 4),
-            Text('⏰  Mon–Fri  8 am – 6 pm (CAT)'),
+            Text(l10n.contactUs,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            const Text('📧  support@afrivoyage.rw'),
+            const SizedBox(height: 4),
+            const Text('📞  +250 788 123 456'),
+            const SizedBox(height: 4),
+            const Text('⏰  Mon–Fri  8 am – 6 pm (CAT)'),
           ],
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogCtx),
-              child: const Text('Close'))
+              child: Text(l10n.close))
         ],
       ),
     );
@@ -1360,15 +1414,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _confirmLogout(BuildContext ctx) {
+    final l10n = AppLocalizations.of(ctx)!;
     showDialog(
       context: ctx,
       builder: (dialogCtx) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(l10n.logout),
+        content: Text(l10n.logoutConfirm),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogCtx),
-              child: const Text('Cancel')),
+              child: Text(l10n.cancel)),
           TextButton(
             onPressed: () async {
               Navigator.pop(dialogCtx);
@@ -1377,7 +1432,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // once Firebase reports the signed-out state.
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Logout'),
+            child: Text(l10n.logout),
           ),
         ],
       ),
