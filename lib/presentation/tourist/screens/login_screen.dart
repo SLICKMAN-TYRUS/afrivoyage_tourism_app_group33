@@ -36,6 +36,7 @@ class _LoginScreenState extends State<LoginScreen>
       create: (_) => AuthBloc(authRepository: AuthRepository()),
       child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
+          final l10n = AppLocalizations.of(context)!;
           if (state is AuthAuthenticated) {
             if (state.accountType == 'provider') {
               context.go(RouteNames.provider);
@@ -46,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                    'Password reset email sent to ${state.email}'),
+                    '${l10n.passwordResetSentPrefix} ${state.email}'),
                 backgroundColor: Colors.green,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -199,10 +200,10 @@ class _LoginFormState extends State<_LoginForm> {
               ),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) {
-                  return '${l10n.emailAddress} is required';
+                  return l10n.emailRequired;
                 }
                 if (!validateEmail(v)) {
-                  return 'Enter a valid email address';
+                  return l10n.enterValidEmail;
                 }
                 return null;
               },
@@ -228,7 +229,7 @@ class _LoginFormState extends State<_LoginForm> {
               ),
               validator: (v) {
                 if (v == null || v.isEmpty) {
-                  return '${l10n.password} is required';
+                  return l10n.passwordRequired;
                 }
                 return null;
               },
@@ -264,7 +265,7 @@ class _LoginFormState extends State<_LoginForm> {
             const SizedBox(height: 20),
 
             // Divider
-            _orDivider(),
+            _orDivider(l10n),
             const SizedBox(height: 20),
 
             // Google
@@ -281,7 +282,7 @@ class _LoginFormState extends State<_LoginForm> {
             ),
             const SizedBox(height: 24),
 
-            _termsText(),
+            _termsText(l10n),
           ],
         ),
       ),
@@ -299,24 +300,24 @@ class _LoginFormState extends State<_LoginForm> {
   }
 
   void _showForgotPassword(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final ctrl = TextEditingController(text: _emailCtrl.text);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Reset Password'),
+        title: Text(l10n.resetPassword),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-                'Enter your email address and we will send you a link to reset your password.'),
+            Text(l10n.resetPasswordHint),
             const SizedBox(height: 16),
             TextField(
               controller: ctrl,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Email address',
-                prefixIcon: Icon(Icons.email_outlined),
+              decoration: InputDecoration(
+                labelText: l10n.emailAddress,
+                prefixIcon: const Icon(Icons.email_outlined),
               ),
             ),
           ],
@@ -324,7 +325,7 @@ class _LoginFormState extends State<_LoginForm> {
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel')),
+              child: Text(l10n.cancel)),
           ElevatedButton(
             onPressed: () {
               if (validateEmail(ctrl.text)) {
@@ -334,7 +335,7 @@ class _LoginFormState extends State<_LoginForm> {
                 Navigator.pop(ctx);
               }
             },
-            child: const Text('Send Reset Link'),
+            child: Text(l10n.sendResetLink),
           ),
         ],
       ),
@@ -392,6 +393,7 @@ class _SignUpFormState extends State<_SignUpForm> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Form(
@@ -402,7 +404,7 @@ class _SignUpFormState extends State<_SignUpForm> {
             const SizedBox(height: 4),
 
             // ── Account type ────────────────────────────────
-            _fieldLabel('I am a'),
+            _fieldLabel(l10n.iAma),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -410,8 +412,8 @@ class _SignUpFormState extends State<_SignUpForm> {
                   child: _accountTypeOption(
                     value: 'tourist',
                     icon: Icons.backpack_outlined,
-                    label: 'Tourist',
-                    subtitle: 'Explore & book experiences',
+                    label: l10n.tourist,
+                    subtitle: l10n.touristSubtitle,
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -419,8 +421,8 @@ class _SignUpFormState extends State<_SignUpForm> {
                   child: _accountTypeOption(
                     value: 'provider',
                     icon: Icons.tour_outlined,
-                    label: 'Provider',
-                    subtitle: 'List & manage experiences',
+                    label: l10n.provider,
+                    subtitle: l10n.providerSubtitle,
                   ),
                 ),
               ],
@@ -428,22 +430,22 @@ class _SignUpFormState extends State<_SignUpForm> {
             const SizedBox(height: 20),
 
             // ── Full name ───────────────────────────────────
-            _fieldLabel('Full Name'),
+            _fieldLabel(l10n.fullName),
             const SizedBox(height: 6),
             TextFormField(
               controller: _fullNameCtrl,
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(
-                hintText: 'e.g. Jean-Baptiste Uwimana',
-                prefixIcon: Icon(Icons.person_outline),
+              decoration: InputDecoration(
+                hintText: l10n.fullNameHint,
+                prefixIcon: const Icon(Icons.person_outline),
               ),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) {
-                  return 'Full name is required';
+                  return l10n.fullNameRequired;
                 }
                 if (v.trim().split(' ').length < 2) {
-                  return 'Please enter your first and last name';
+                  return l10n.enterFirstAndLastName;
                 }
                 return null;
               },
@@ -451,22 +453,22 @@ class _SignUpFormState extends State<_SignUpForm> {
             const SizedBox(height: 16),
 
             // ── Phone number ────────────────────────────────
-            _fieldLabel('Phone Number'),
+            _fieldLabel(l10n.phoneNumber),
             const SizedBox(height: 6),
             TextFormField(
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
               textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(
-                hintText: 'e.g. +250 788 123 456',
-                prefixIcon: Icon(Icons.phone_outlined),
+              decoration: InputDecoration(
+                hintText: l10n.phoneHint,
+                prefixIcon: const Icon(Icons.phone_outlined),
               ),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) {
-                  return 'Phone number is required';
+                  return l10n.phoneRequired;
                 }
                 if (!validatePhone(v)) {
-                  return 'Enter a valid phone number (9-15 digits)';
+                  return l10n.enterValidPhone;
                 }
                 return null;
               },
@@ -474,25 +476,20 @@ class _SignUpFormState extends State<_SignUpForm> {
             const SizedBox(height: 16),
 
             // ── Date of birth ───────────────────────────────
-            _fieldLabel('Date of Birth'),
+            _fieldLabel(l10n.dateOfBirth),
             const SizedBox(height: 6),
             InkWell(
-              onTap: _pickDateOfBirth,
+              onTap: () => _pickDateOfBirth(l10n),
               borderRadius: BorderRadius.circular(10),
               child: InputDecorator(
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.cake_outlined),
-                  suffixIcon: const Icon(Icons.calendar_month,
-                      size: 18),
-                  errorText: _dateOfBirth == null &&
-                          _formKey.currentState != null
-                      ? null
-                      : null,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.cake_outlined),
+                  suffixIcon: Icon(Icons.calendar_month, size: 18),
                 ),
                 child: Text(
                   _dateOfBirth != null
                       ? _formatDate(_dateOfBirth!)
-                      : 'Select your date of birth',
+                      : l10n.selectDateOfBirth,
                   style: TextStyle(
                     color: _dateOfBirth != null
                         ? null
@@ -504,22 +501,22 @@ class _SignUpFormState extends State<_SignUpForm> {
             const SizedBox(height: 16),
 
             // ── Email ───────────────────────────────────────
-            _fieldLabel('Email Address'),
+            _fieldLabel(l10n.emailAddress),
             const SizedBox(height: 6),
             TextFormField(
               controller: _emailCtrl,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(
-                hintText: 'e.g. jean@example.com',
-                prefixIcon: Icon(Icons.email_outlined),
+              decoration: InputDecoration(
+                hintText: l10n.emailHint,
+                prefixIcon: const Icon(Icons.email_outlined),
               ),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) {
-                  return 'Email is required';
+                  return l10n.emailRequired;
                 }
                 if (!validateEmail(v)) {
-                  return 'Enter a valid email address';
+                  return l10n.enterValidEmail;
                 }
                 return null;
               },
@@ -527,7 +524,7 @@ class _SignUpFormState extends State<_SignUpForm> {
             const SizedBox(height: 16),
 
             // ── Password ────────────────────────────────────
-            _fieldLabel('Password'),
+            _fieldLabel(l10n.password),
             const SizedBox(height: 6),
             TextFormField(
               controller: _passwordCtrl,
@@ -535,7 +532,7 @@ class _SignUpFormState extends State<_SignUpForm> {
               textInputAction: TextInputAction.next,
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
-                hintText: 'At least 8 characters',
+                hintText: l10n.passwordHint,
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   icon: Icon(_obscurePass
@@ -547,16 +544,16 @@ class _SignUpFormState extends State<_SignUpForm> {
               ),
               validator: (v) {
                 if (v == null || v.isEmpty) {
-                  return 'Password is required';
+                  return l10n.passwordRequired;
                 }
                 if (v.length < 8) {
-                  return 'Password must be at least 8 characters';
+                  return l10n.passwordMinLength;
                 }
                 if (!v.contains(RegExp(r'[A-Z]'))) {
-                  return 'Include at least one uppercase letter';
+                  return l10n.includeUppercase;
                 }
                 if (!v.contains(RegExp(r'[0-9]'))) {
-                  return 'Include at least one number';
+                  return l10n.includeNumber;
                 }
                 return null;
               },
@@ -564,12 +561,12 @@ class _SignUpFormState extends State<_SignUpForm> {
             // Password strength indicator
             if (_passwordCtrl.text.isNotEmpty) ...[
               const SizedBox(height: 8),
-              _passwordStrengthBar(),
+              _passwordStrengthBar(l10n),
             ],
             const SizedBox(height: 16),
 
             // ── Confirm password ────────────────────────────
-            _fieldLabel('Confirm Password'),
+            _fieldLabel(l10n.confirmPassword),
             const SizedBox(height: 6),
             TextFormField(
               controller: _confirmCtrl,
@@ -577,7 +574,7 @@ class _SignUpFormState extends State<_SignUpForm> {
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _submit(context),
               decoration: InputDecoration(
-                hintText: 'Re-enter your password',
+                hintText: l10n.reEnterPassword,
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   icon: Icon(_obscureConfirm
@@ -589,10 +586,10 @@ class _SignUpFormState extends State<_SignUpForm> {
               ),
               validator: (v) {
                 if (v == null || v.isEmpty) {
-                  return 'Please confirm your password';
+                  return l10n.pleaseConfirmPassword;
                 }
                 if (v != _passwordCtrl.text) {
-                  return 'Passwords do not match';
+                  return l10n.passwordsDoNotMatch;
                 }
                 return null;
               },
@@ -621,19 +618,18 @@ class _SignUpFormState extends State<_SignUpForm> {
                         text: TextSpan(
                           style: TextStyle(
                               color: Colors.grey[600], fontSize: 13),
-                          children: const [
+                          children: [
+                            TextSpan(text: '${l10n.iAgreeTo} '),
                             TextSpan(
-                                text: 'I agree to the '),
-                            TextSpan(
-                              text: 'Terms of Service',
-                              style: TextStyle(
+                              text: l10n.termsOfService,
+                              style: const TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.w600),
                             ),
-                            TextSpan(text: ' and '),
+                            TextSpan(text: ' ${l10n.and} '),
                             TextSpan(
-                              text: 'Privacy Policy',
-                              style: TextStyle(
+                              text: l10n.privacyPolicy,
+                              style: const TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.w600),
                             ),
@@ -660,12 +656,12 @@ class _SignUpFormState extends State<_SignUpForm> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text('Create Account'),
+                    : Text(l10n.createAccount),
               ),
             ),
             const SizedBox(height: 20),
 
-            _orDivider(),
+            _orDivider(l10n),
             const SizedBox(height: 20),
 
             BlocBuilder<AuthBloc, AuthState>(
@@ -676,12 +672,12 @@ class _SignUpFormState extends State<_SignUpForm> {
                         .read<AuthBloc>()
                         .add(LoginWithGoogle()),
                 icon: const Icon(Icons.g_mobiledata, size: 26),
-                label: const Text('Sign up with Google'),
+                label: Text(l10n.signUpWithGoogle),
               ),
             ),
             const SizedBox(height: 24),
 
-            _termsText(),
+            _termsText(l10n),
             const SizedBox(height: 16),
           ],
         ),
@@ -739,10 +735,16 @@ class _SignUpFormState extends State<_SignUpForm> {
             fontSize: 13, fontWeight: FontWeight.w600),
       );
 
-  Widget _passwordStrengthBar() {
+  Widget _passwordStrengthBar(AppLocalizations l10n) {
     final strength = _passwordStrength;
     final colors = [Colors.red, Colors.red, Colors.orange, Colors.yellow, Colors.green];
-    final labels = ['Very weak', 'Weak', 'Fair', 'Good', 'Strong'];
+    final labels = [
+      l10n.strengthVeryWeak,
+      l10n.strengthWeak,
+      l10n.strengthFair,
+      l10n.strengthGood,
+      l10n.strengthStrong,
+    ];
     final color = colors[strength.clamp(0, 4)];
     final label = labels[strength.clamp(0, 4)];
 
@@ -767,14 +769,14 @@ class _SignUpFormState extends State<_SignUpForm> {
     );
   }
 
-  Future<void> _pickDateOfBirth() async {
+  Future<void> _pickDateOfBirth(AppLocalizations l10n) async {
     final now = DateTime.now();
     final date = await showDatePicker(
       context: context,
       initialDate: DateTime(now.year - 20),
       firstDate: DateTime(1920),
-      lastDate: DateTime(now.year - 13), // must be at least 13
-      helpText: 'Select Date of Birth',
+      lastDate: DateTime(now.year - 13),
+      helpText: l10n.selectDateOfBirthHelper,
     );
     if (date != null) setState(() => _dateOfBirth = date);
   }
@@ -788,12 +790,13 @@ class _SignUpFormState extends State<_SignUpForm> {
   }
 
   void _submit(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_formKey.currentState?.validate() != true) return;
 
     if (_dateOfBirth == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select your date of birth'),
+        SnackBar(
+          content: Text(l10n.selectDobSnackbar),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
         ),
@@ -803,9 +806,8 @@ class _SignUpFormState extends State<_SignUpForm> {
 
     if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text('Please agree to the Terms of Service to continue'),
+        SnackBar(
+          content: Text(l10n.agreeToTermsSnackbar),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
         ),
@@ -828,20 +830,19 @@ class _SignUpFormState extends State<_SignUpForm> {
 
 // ── Shared helpers ─────────────────────────────────────────────
 
-Widget _orDivider() => Row(
+Widget _orDivider(AppLocalizations l10n) => Row(
       children: [
         Expanded(child: Divider(color: Colors.grey[400])),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
-          child:
-              Text('or', style: TextStyle(color: Colors.grey[500])),
+          child: Text(l10n.or, style: TextStyle(color: Colors.grey[500])),
         ),
         Expanded(child: Divider(color: Colors.grey[400])),
       ],
     );
 
-Widget _termsText() => Text(
-      'By continuing, you agree to our Terms of Service and Privacy Policy.',
+Widget _termsText(AppLocalizations l10n) => Text(
+      l10n.byContinuing,
       textAlign: TextAlign.center,
       style: TextStyle(color: Colors.grey[500], fontSize: 11),
     );

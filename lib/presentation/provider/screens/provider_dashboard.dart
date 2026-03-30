@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../l10n/app_localizations.dart';
 
 // Static bookings for demo
 final _kBookings = <Map<String, dynamic>>[
@@ -56,9 +57,10 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Provider Dashboard'),
+        title: Text(l10n.providerDashboard),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
@@ -93,7 +95,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                             crossAxisAlignment:
                                 CrossAxisAlignment.start,
                             children: [
-                              Text('Welcome back,',
+                              Text(l10n.welcomeBack,
                                   style: TextStyle(
                                       color: Colors.green[100])),
                               const Text(
@@ -109,12 +111,12 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.verified, color: Colors.amber),
-                        SizedBox(width: 8),
-                        Text('Verified Guide — RDB Certified',
-                            style: TextStyle(color: Colors.white)),
+                        const Icon(Icons.verified, color: Colors.amber),
+                        const SizedBox(width: 8),
+                        Text(l10n.verifiedGuideBadge,
+                            style: const TextStyle(color: Colors.white)),
                       ],
                     ),
                   ],
@@ -127,13 +129,13 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
             Row(
               children: [
                 Expanded(
-                    child: _summaryCard('This Month',
+                    child: _summaryCard(l10n.thisMonth,
                         'RWF 680K', Icons.trending_up,
                         Colors.green)),
                 const SizedBox(width: 12),
                 Expanded(
-                    child: _summaryCard('Today',
-                        '${_bookings.length} Bookings',
+                    child: _summaryCard(l10n.today,
+                        '${_bookings.length} ${l10n.bookings}',
                         Icons.calendar_today, Colors.blue)),
               ],
             ),
@@ -148,13 +150,13 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                   mainAxisAlignment:
                       MainAxisAlignment.spaceAround,
                   children: [
-                    _statCol('Pending',
+                    _statCol(l10n.pending,
                         '$_pendingCount', Colors.orange),
                     _divider(),
-                    _statCol('Confirmed',
+                    _statCol(l10n.confirmed,
                         '$_confirmedCount', Colors.blue),
                     _divider(),
-                    _statCol('Completed',
+                    _statCol(l10n.completed,
                         '$_completedCount', Colors.green),
                   ],
                 ),
@@ -166,10 +168,10 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Recent Bookings',
-                    style: TextStyle(
+                Text(l10n.recentBookings,
+                    style: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.bold)),
-                TextButton(onPressed: () {}, child: const Text('View All')),
+                TextButton(onPressed: () {}, child: Text(l10n.viewAll)),
               ],
             ),
             const SizedBox(height: 10),
@@ -177,20 +179,20 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
 
             const SizedBox(height: 20),
             // ── Quick actions ────────────────────────────
-            const Text('Quick Actions',
-                style: TextStyle(
+            Text(l10n.quickActions,
+                style: const TextStyle(
                     fontSize: 15, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
                     child: _actionCard(
-                        Icons.add, 'Add Experience',
+                        Icons.add, l10n.addExperience,
                         () => context.push('/provider/listings'))),
                 const SizedBox(width: 12),
                 Expanded(
                     child: _actionCard(
-                        Icons.calendar_today, 'Availability',
+                        Icons.calendar_today, l10n.availability,
                         () => _showAvailabilityDialog(context))),
               ],
             ),
@@ -199,12 +201,12 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
               children: [
                 Expanded(
                     child: _actionCard(
-                        Icons.analytics, 'Analytics',
+                        Icons.analytics, l10n.analytics,
                         () => context.push('/provider/earnings'))),
                 const SizedBox(width: 12),
                 Expanded(
                     child: _actionCard(
-                        Icons.support_agent, 'Support',
+                        Icons.support_agent, l10n.support,
                         () => _showSupportDialog(context))),
               ],
             ),
@@ -218,27 +220,27 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
           if (i == 1) context.push('/provider/listings');
           if (i == 3) context.push('/provider/earnings');
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard_outlined),
-              activeIcon: Icon(Icons.dashboard),
-              label: 'Dashboard'),
+              icon: const Icon(Icons.dashboard_outlined),
+              activeIcon: const Icon(Icons.dashboard),
+              label: l10n.dashboard),
           BottomNavigationBarItem(
-              icon: Icon(Icons.list_alt_outlined),
-              activeIcon: Icon(Icons.list_alt),
-              label: 'Listings'),
+              icon: const Icon(Icons.list_alt_outlined),
+              activeIcon: const Icon(Icons.list_alt),
+              label: l10n.listings),
           BottomNavigationBarItem(
-              icon: Icon(Icons.message_outlined),
-              activeIcon: Icon(Icons.message),
-              label: 'Messages'),
+              icon: const Icon(Icons.message_outlined),
+              activeIcon: const Icon(Icons.message),
+              label: l10n.messages),
           BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet_outlined),
-              activeIcon: Icon(Icons.account_balance_wallet),
-              label: 'Earnings'),
+              icon: const Icon(Icons.account_balance_wallet_outlined),
+              activeIcon: const Icon(Icons.account_balance_wallet),
+              label: l10n.earnings),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile'),
+              icon: const Icon(Icons.person_outline),
+              activeIcon: const Icon(Icons.person),
+              label: l10n.navProfile),
         ],
       ),
     );
@@ -290,6 +292,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
 
   Widget _bookingCard(
       BuildContext context, Map<String, dynamic> b) {
+    final l10n = AppLocalizations.of(context)!;
     final status = b['status'] as String;
     final sc = _statusColor(status);
 
@@ -352,15 +355,15 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
         trailing: PopupMenuButton<String>(
           onSelected: (v) => setState(() => b['status'] = v),
           itemBuilder: (_) => [
-            const PopupMenuItem(
+            PopupMenuItem(
                 value: 'confirmed',
-                child: Text('Confirm Booking')),
-            const PopupMenuItem(
+                child: Text(l10n.confirmBooking)),
+            PopupMenuItem(
                 value: 'completed',
-                child: Text('Mark Complete')),
+                child: Text(l10n.markComplete)),
             PopupMenuItem(
               value: 'cancelled',
-              child: Text('Cancel Booking',
+              child: Text(l10n.cancelBooking,
                   style:
                       TextStyle(color: Colors.red[700])),
             ),
@@ -428,6 +431,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
   }
 
   void _showNotifications(BuildContext ctx) {
+    final l10n = AppLocalizations.of(ctx)!;
     showModalBottomSheet(
       context: ctx,
       shape: const RoundedRectangleBorder(
@@ -439,8 +443,8 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Notifications',
-                style: TextStyle(
+            Text(l10n.notifications,
+                style: const TextStyle(
                     fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             ListTile(
@@ -450,8 +454,8 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                       Colors.blue.withValues(alpha: 0.15),
                   child: const Icon(Icons.book_online,
                       color: Colors.blue, size: 20)),
-              title: const Text('New Booking',
-                  style: TextStyle(
+              title: Text(l10n.newBookingNotif,
+                  style: const TextStyle(
                       fontWeight: FontWeight.w600, fontSize: 13)),
               subtitle: const Text(
                   'Alice M. booked Gorilla Trekking for Apr 15.',
@@ -464,8 +468,8 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                       Colors.green.withValues(alpha: 0.15),
                   child: const Icon(Icons.payment,
                       color: Colors.green, size: 20)),
-              title: const Text('Payment Received',
-                  style: TextStyle(
+              title: Text(l10n.paymentReceived,
+                  style: const TextStyle(
                       fontWeight: FontWeight.w600, fontSize: 13)),
               subtitle: const Text('RWF 95,000 received via MTN MoMo.',
                   style: TextStyle(fontSize: 12)),
@@ -477,44 +481,45 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
   }
 
   void _showAvailabilityDialog(BuildContext ctx) {
+    final l10n = AppLocalizations.of(ctx)!;
     showDialog(
       context: ctx,
       builder: (dialogCtx) => AlertDialog(
-        title: const Text('Set Availability'),
-        content: const Text(
-            'Availability management is coming soon.\nYou\'ll be able to block dates and set capacity.'),
+        title: Text(l10n.setAvailability),
+        content: Text(l10n.availabilityComingSoon),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogCtx),
-              child: const Text('OK'))
+              child: Text(l10n.ok))
         ],
       ),
     );
   }
 
   void _showSupportDialog(BuildContext ctx) {
+    final l10n = AppLocalizations.of(ctx)!;
     showDialog(
       context: ctx,
       builder: (dialogCtx) => AlertDialog(
-        title: const Text('Provider Support'),
-        content: const Column(
+        title: Text(l10n.providerSupport),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Contact us:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            Text('📧  providers@afrivoyage.rw'),
-            SizedBox(height: 4),
-            Text('📞  +250 788 999 000'),
-            SizedBox(height: 4),
-            Text('⏰  Mon–Fri  8 am – 6 pm (CAT)'),
+            Text(l10n.contactUs,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            const Text('📧  providers@afrivoyage.rw'),
+            const SizedBox(height: 4),
+            const Text('📞  +250 788 999 000'),
+            const SizedBox(height: 4),
+            const Text('⏰  Mon–Fri  8 am – 6 pm (CAT)'),
           ],
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogCtx),
-              child: const Text('Close'))
+              child: Text(l10n.close))
         ],
       ),
     );

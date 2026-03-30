@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ─────────────────────────────────────────────
 // Static experience data — keyed by id
@@ -100,10 +101,12 @@ class _BookingScreenState extends State<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     // No id? Show "browse first" message
     if (widget.experienceId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Book Experience')),
+        appBar: AppBar(title: Text(l10n.bookExperience)),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -111,15 +114,15 @@ class _BookingScreenState extends State<BookingScreen> {
               const Icon(Icons.explore_outlined,
                   size: 64, color: Colors.grey),
               const SizedBox(height: 16),
-              const Text('No experience selected.',
-                  style: TextStyle(fontSize: 16)),
+              Text(l10n.noExperienceSelected,
+                  style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 8),
-              const Text('Browse experiences from the Home tab.',
-                  style: TextStyle(color: Colors.grey)),
+              Text(l10n.browseExperiencesFromHome,
+                  style: const TextStyle(color: Colors.grey)),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => context.go('/home'),
-                child: const Text('Browse Experiences'),
+                child: Text(l10n.browseExperiences),
               ),
             ],
           ),
@@ -131,7 +134,7 @@ class _BookingScreenState extends State<BookingScreen> {
     final bg = Color(exp['color'] as int);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Book Experience')),
+      appBar: AppBar(title: Text(l10n.bookExperience)),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +192,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SizedBox(height: 24),
 
                   // ── Date selection ───────────────────
-                  _sectionTitle('Select Date'),
+                  _sectionTitle(l10n.selectDate),
                   const SizedBox(height: 10),
                   InkWell(
                     onTap: _pickDate,
@@ -218,7 +221,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           Text(
                             _selectedDate != null
                                 ? _formatDate(_selectedDate!)
-                                : 'Tap to choose a date',
+                                : l10n.tapToChooseDate,
                             style: TextStyle(
                                 color: _selectedDate != null
                                     ? null
@@ -226,7 +229,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           ),
                           const Spacer(),
                           if (_selectedDate == null)
-                            Text('Required',
+                            Text(l10n.required,
                                 style: TextStyle(
                                     color: Colors.red[400],
                                     fontSize: 11)),
@@ -237,7 +240,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SizedBox(height: 24),
 
                   // ── Group size ───────────────────────
-                  _sectionTitle('Group Size'),
+                  _sectionTitle(l10n.groupSize),
                   const SizedBox(height: 10),
                   Card(
                     margin: EdgeInsets.zero,
@@ -248,8 +251,8 @@ class _BookingScreenState extends State<BookingScreen> {
                         mainAxisAlignment:
                             MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Number of people',
-                              style: TextStyle(fontSize: 14)),
+                          Text(l10n.numberOfPeople,
+                              style: const TextStyle(fontSize: 14)),
                           Row(
                             children: [
                               IconButton(
@@ -292,21 +295,23 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SizedBox(height: 24),
 
                   // ── Payment method ───────────────────
-                  _sectionTitle('Payment Method'),
+                  _sectionTitle(l10n.paymentMethod),
                   const SizedBox(height: 10),
                   _paymentTile(
-                      'mtn', 'MTN Mobile Money',
-                      'Pay securely with MTN MoMo',
+                      'mtn',
+                      l10n.mtnMobileMoney,
+                      l10n.payWithMtn,
                       const Color(0xFFFFC400)),
                   const SizedBox(height: 8),
                   _paymentTile(
-                      'airtel', 'Airtel Money',
-                      'Pay securely with Airtel',
+                      'airtel',
+                      l10n.airtelMoney,
+                      l10n.payWithAirtel,
                       const Color(0xFFD50000)),
                   const SizedBox(height: 24),
 
                   // ── Price breakdown ──────────────────
-                  _sectionTitle('Price Breakdown'),
+                  _sectionTitle(l10n.priceBreakdown),
                   const SizedBox(height: 10),
                   Card(
                     margin: EdgeInsets.zero,
@@ -315,22 +320,22 @@ class _BookingScreenState extends State<BookingScreen> {
                       child: Column(
                         children: [
                           _priceRow(
-                            'Experience fee',
+                            l10n.experienceFee,
                             'RWF ${_fmt(_basePrice)} × $_groupSize',
                           ),
                           const SizedBox(height: 6),
                           _priceRow(
-                            'Subtotal',
+                            l10n.subtotal,
                             'RWF ${_fmt(_total)}',
                           ),
                           _priceRow(
-                            'Platform fee (8 %)',
+                            l10n.platformFee,
                             '− RWF ${_fmt(_platformFee)}',
                             isGrey: true,
                           ),
                           const Divider(height: 20),
                           _priceRow(
-                            'Total',
+                            l10n.total,
                             'RWF ${_fmt(_total)}',
                             isBold: true,
                             isGreen: true,
@@ -384,15 +389,15 @@ class _BookingScreenState extends State<BookingScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Confirm & Pay'),
+                          : Text(l10n.confirmAndPay),
                     ),
                   ),
                   if (_selectedDate == null) ...[
                     const SizedBox(height: 6),
-                    const Center(
+                    Center(
                       child: Text(
-                        'Please select a date to continue',
-                        style: TextStyle(
+                        l10n.selectDateToContinue,
+                        style: const TextStyle(
                             color: Colors.red, fontSize: 12),
                       ),
                     ),
@@ -400,7 +405,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SizedBox(height: 12),
                   Center(
                     child: Text(
-                      'Free cancellation up to 24 hours before the experience',
+                      l10n.freeCancellation,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           color: Colors.grey[500], fontSize: 12),
@@ -539,13 +544,14 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   void _showConfirmation() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
         icon: const Icon(Icons.check_circle,
             color: Colors.green, size: 56),
-        title: const Text('Booking Confirmed!',
+        title: Text(l10n.bookingConfirmedTitle,
             textAlign: TextAlign.center),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -557,22 +563,22 @@ class _BookingScreenState extends State<BookingScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '${_formatDate(_selectedDate!)} · $_groupSize ${_groupSize == 1 ? 'person' : 'people'}',
+              '${_formatDate(_selectedDate!)} · $_groupSize ${_groupSize == 1 ? l10n.person : l10n.people}',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 6),
             Text(
-              'Total: RWF ${_fmt(_total)}',
+              '${l10n.total}: RWF ${_fmt(_total)}',
               style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.green),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'You will receive an SMS confirmation shortly.',
+            Text(
+              l10n.smsConfirmation,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13),
+              style: const TextStyle(fontSize: 13),
             ),
           ],
         ),
@@ -584,7 +590,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 Navigator.pop(context);
                 context.pop();
               },
-              child: const Text('Done'),
+              child: Text(l10n.done),
             ),
           ),
         ],

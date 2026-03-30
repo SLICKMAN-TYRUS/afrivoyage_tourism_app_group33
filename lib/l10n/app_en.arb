@@ -158,5 +158,467 @@
   "@listings": {},
 
   "earnings": "Earnings",
-  "@earnings": {}
+  "@earnings": {},
+
+  "emailRequired": "Email is required",
+  "@emailRequired": {},
+
+  "enterValidEmail": "Enter a valid email address",
+  "@enterValidEmail": {},
+
+  "passwordRequired": "Password is required",
+  "@passwordRequired": {},
+
+  "fullNameRequired": "Full name is required",
+  "@fullNameRequired": {},
+
+  "enterFirstAndLastName": "Please enter your first and last name",
+  "@enterFirstAndLastName": {},
+
+  "fullNameHint": "e.g. Jean-Baptiste Uwimana",
+  "@fullNameHint": {},
+
+  "phoneHint": "e.g. +250 788 123 456",
+  "@phoneHint": {},
+
+  "phoneRequired": "Phone number is required",
+  "@phoneRequired": {},
+
+  "enterValidPhone": "Enter a valid phone number (9-15 digits)",
+  "@enterValidPhone": {},
+
+  "selectDateOfBirth": "Select your date of birth",
+  "@selectDateOfBirth": {},
+
+  "selectDateOfBirthHelper": "Select Date of Birth",
+  "@selectDateOfBirthHelper": {},
+
+  "emailHint": "e.g. jean@example.com",
+  "@emailHint": {},
+
+  "passwordHint": "At least 8 characters",
+  "@passwordHint": {},
+
+  "passwordMinLength": "Password must be at least 8 characters",
+  "@passwordMinLength": {},
+
+  "includeUppercase": "Include at least one uppercase letter",
+  "@includeUppercase": {},
+
+  "includeNumber": "Include at least one number",
+  "@includeNumber": {},
+
+  "reEnterPassword": "Re-enter your password",
+  "@reEnterPassword": {},
+
+  "pleaseConfirmPassword": "Please confirm your password",
+  "@pleaseConfirmPassword": {},
+
+  "passwordsDoNotMatch": "Passwords do not match",
+  "@passwordsDoNotMatch": {},
+
+  "selectDobSnackbar": "Please select your date of birth",
+  "@selectDobSnackbar": {},
+
+  "agreeToTermsSnackbar": "Please agree to the Terms of Service to continue",
+  "@agreeToTermsSnackbar": {},
+
+  "iAgreeTo": "I agree to the",
+  "@iAgreeTo": {},
+
+  "termsOfService": "Terms of Service",
+  "@termsOfService": {},
+
+  "and": "and",
+  "@and": {},
+
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {},
+
+  "byContinuing": "By continuing, you agree to our Terms of Service and Privacy Policy.",
+  "@byContinuing": {},
+
+  "or": "or",
+  "@or": {},
+
+  "passwordResetSentPrefix": "Password reset email sent to",
+  "@passwordResetSentPrefix": {},
+
+  "strengthVeryWeak": "Very weak",
+  "@strengthVeryWeak": {},
+
+  "strengthWeak": "Weak",
+  "@strengthWeak": {},
+
+  "strengthFair": "Fair",
+  "@strengthFair": {},
+
+  "strengthGood": "Good",
+  "@strengthGood": {},
+
+  "strengthStrong": "Strong",
+  "@strengthStrong": {},
+
+  "searchHint": "Search experiences, locations\u2026",
+  "@searchHint": {},
+
+  "categoryAll": "All",
+  "@categoryAll": {},
+
+  "categoryNature": "Nature",
+  "@categoryNature": {},
+
+  "categoryCulture": "Culture",
+  "@categoryCulture": {},
+
+  "categoryFoodDrink": "Food & Drink",
+  "@categoryFoodDrink": {},
+
+  "categoryAdventure": "Adventure",
+  "@categoryAdventure": {},
+
+  "noExperiencesFound": "No experiences found",
+  "@noExperiencesFound": {},
+
+  "clearFilters": "Clear filters",
+  "@clearFilters": {},
+
+  "notifications": "Notifications",
+  "@notifications": {},
+
+  "bookingConfirmedNotif": "Booking confirmed",
+  "@bookingConfirmedNotif": {},
+
+  "newReview": "New review",
+  "@newReview": {},
+
+  "reminder": "Reminder",
+  "@reminder": {},
+
+  "exploreRwanda": "Explore Rwanda",
+  "@exploreRwanda": {},
+
+  "landOfThousandHills": "The Land of a Thousand Hills",
+  "@landOfThousandHills": {},
+
+  "topRatedExperiences": "Top Rated Experiences",
+  "@topRatedExperiences": {},
+
+  "destinations": "Destinations",
+  "@destinations": {},
+
+  "seeAll": "See all",
+  "@seeAll": {},
+
+  "upcoming": "Upcoming",
+  "@upcoming": {},
+
+  "allBookings": "All Bookings",
+  "@allBookings": {},
+
+  "travelTips": "Travel Tips",
+  "@travelTips": {},
+
+  "bestTimeToVisit": "Best Time to Visit",
+  "@bestTimeToVisit": {},
+
+  "healthAndSafety": "Health & Safety",
+  "@healthAndSafety": {},
+
+  "currencyTip": "Currency",
+  "@currencyTip": {},
+
+  "touristAccount": "Tourist Account",
+  "@touristAccount": {},
+
+  "preferences": "Preferences",
+  "@preferences": {},
+
+  "account": "Account",
+  "@account": {},
+
+  "darkModeToggle": "Toggle light / dark theme",
+  "@darkModeToggle": {},
+
+  "helpSupport": "Help & Support",
+  "@helpSupport": {},
+
+  "aboutAfriVoyage": "About AfriVoyage",
+  "@aboutAfriVoyage": {},
+
+  "bookExperience": "Book Experience",
+  "@bookExperience": {},
+
+  "noExperienceSelected": "No experience selected.",
+  "@noExperienceSelected": {},
+
+  "browseExperiencesFromHome": "Browse experiences from the Home tab.",
+  "@browseExperiencesFromHome": {},
+
+  "browseExperiences": "Browse Experiences",
+  "@browseExperiences": {},
+
+  "selectDate": "Select Date",
+  "@selectDate": {},
+
+  "tapToChooseDate": "Tap to choose a date",
+  "@tapToChooseDate": {},
+
+  "required": "Required",
+  "@required": {},
+
+  "groupSize": "Group Size",
+  "@groupSize": {},
+
+  "numberOfPeople": "Number of people",
+  "@numberOfPeople": {},
+
+  "paymentMethod": "Payment Method",
+  "@paymentMethod": {},
+
+  "mtnMobileMoney": "MTN Mobile Money",
+  "@mtnMobileMoney": {},
+
+  "payWithMtn": "Pay securely with MTN MoMo",
+  "@payWithMtn": {},
+
+  "airtelMoney": "Airtel Money",
+  "@airtelMoney": {},
+
+  "payWithAirtel": "Pay securely with Airtel",
+  "@payWithAirtel": {},
+
+  "priceBreakdown": "Price Breakdown",
+  "@priceBreakdown": {},
+
+  "experienceFee": "Experience fee",
+  "@experienceFee": {},
+
+  "subtotal": "Subtotal",
+  "@subtotal": {},
+
+  "platformFee": "Platform fee (8 %)",
+  "@platformFee": {},
+
+  "total": "Total",
+  "@total": {},
+
+  "confirmAndPay": "Confirm & Pay",
+  "@confirmAndPay": {},
+
+  "selectDateToContinue": "Please select a date to continue",
+  "@selectDateToContinue": {},
+
+  "freeCancellation": "Free cancellation up to 24 hours before the experience",
+  "@freeCancellation": {},
+
+  "bookingConfirmedTitle": "Booking Confirmed!",
+  "@bookingConfirmedTitle": {},
+
+  "smsConfirmation": "You will receive an SMS confirmation shortly.",
+  "@smsConfirmation": {},
+
+  "done": "Done",
+  "@done": {},
+
+  "person": "person",
+  "@person": {},
+
+  "people": "people",
+  "@people": {},
+
+  "seeTheDifference": "See the difference you're making in local communities",
+  "@seeTheDifference": {},
+
+  "familiesSupported": "Families supported",
+  "@familiesSupported": {},
+
+  "localEarnings": "Local earnings (RWF)",
+  "@localEarnings": {},
+
+  "verifiedBookings": "Verified bookings",
+  "@verifiedBookings": {},
+
+  "hoursExperienced": "Hours experienced",
+  "@hoursExperienced": {},
+
+  "communityImpactBreakdown": "Community Impact Breakdown",
+  "@communityImpactBreakdown": {},
+
+  "conservationEfforts": "Conservation efforts",
+  "@conservationEfforts": {},
+
+  "localGuideSupport": "Local guide support",
+  "@localGuideSupport": {},
+
+  "womensCooperatives": "Women's cooperatives",
+  "@womensCooperatives": {},
+
+  "communityDevelopment": "Community development",
+  "@communityDevelopment": {},
+
+  "verifiedGuideBadge": "Verified Guide \u2014 RDB Certified",
+  "@verifiedGuideBadge": {},
+
+  "thisMonth": "This Month",
+  "@thisMonth": {},
+
+  "today": "Today",
+  "@today": {},
+
+  "bookings": "Bookings",
+  "@bookings": {},
+
+  "pending": "Pending",
+  "@pending": {},
+
+  "confirmed": "Confirmed",
+  "@confirmed": {},
+
+  "completed": "Completed",
+  "@completed": {},
+
+  "recentBookings": "Recent Bookings",
+  "@recentBookings": {},
+
+  "viewAll": "View All",
+  "@viewAll": {},
+
+  "quickActions": "Quick Actions",
+  "@quickActions": {},
+
+  "addExperience": "Add Experience",
+  "@addExperience": {},
+
+  "availability": "Availability",
+  "@availability": {},
+
+  "analytics": "Analytics",
+  "@analytics": {},
+
+  "support": "Support",
+  "@support": {},
+
+  "messages": "Messages",
+  "@messages": {},
+
+  "newBookingNotif": "New Booking",
+  "@newBookingNotif": {},
+
+  "paymentReceived": "Payment Received",
+  "@paymentReceived": {},
+
+  "confirmBooking": "Confirm Booking",
+  "@confirmBooking": {},
+
+  "markComplete": "Mark Complete",
+  "@markComplete": {},
+
+  "cancelBooking": "Cancel Booking",
+  "@cancelBooking": {},
+
+  "setAvailability": "Set Availability",
+  "@setAvailability": {},
+
+  "availabilityComingSoon": "Availability management is coming soon.\nYou'll be able to block dates and set capacity.",
+  "@availabilityComingSoon": {},
+
+  "ok": "OK",
+  "@ok": {},
+
+  "providerSupport": "Provider Support",
+  "@providerSupport": {},
+
+  "contactUs": "Contact us:",
+  "@contactUs": {},
+
+  "myListings": "My Listings",
+  "@myListings": {},
+
+  "noListingsYet": "No listings yet.",
+  "@noListingsYet": {},
+
+  "availableForBooking": "Available for booking",
+  "@availableForBooking": {},
+
+  "notAcceptingBookings": "Not accepting bookings",
+  "@notAcceptingBookings": {},
+
+  "edit": "Edit",
+  "@edit": {},
+
+  "stats": "Stats",
+  "@stats": {},
+
+  "delete": "Delete",
+  "@delete": {},
+
+  "addNewExperience": "Add New Experience",
+  "@addNewExperience": {},
+
+  "titleLabel": "Title",
+  "@titleLabel": {},
+
+  "priceRwf": "Price (RWF)",
+  "@priceRwf": {},
+
+  "categoryLabel": "Category",
+  "@categoryLabel": {},
+
+  "add": "Add",
+  "@add": {},
+
+  "experienceAdded": "Experience added!",
+  "@experienceAdded": {},
+
+  "editListing": "Edit Listing",
+  "@editListing": {},
+
+  "ratingLabel": "Rating",
+  "@ratingLabel": {},
+
+  "reviewsLabel": "Reviews",
+  "@reviewsLabel": {},
+
+  "estMonthlyRevenue": "Est. Monthly Revenue",
+  "@estMonthlyRevenue": {},
+
+  "deleteListing": "Delete Listing",
+  "@deleteListing": {},
+
+  "listingDeleted": "Listing deleted.",
+  "@listingDeleted": {},
+
+  "live": "Live",
+  "@live": {},
+
+  "hidden": "Hidden",
+  "@hidden": {},
+
+  "totalEarnings": "Total Earnings",
+  "@totalEarnings": {},
+
+  "monthlyBreakdown": "Monthly Breakdown",
+  "@monthlyBreakdown": {},
+
+  "commissionStructure": "Commission Structure",
+  "@commissionStructure": {},
+
+  "yourEarnings": "Your earnings",
+  "@yourEarnings": {},
+
+  "bookingsCount": "bookings",
+  "@bookingsCount": {},
+
+  "pageNotFound": "Page Not Found",
+  "@pageNotFound": {},
+
+  "oopsLostInAfrica": "Oops! Lost in Africa?",
+  "@oopsLostInAfrica": {},
+
+  "pageNotFoundDesc": "The page you're looking for doesn't exist.",
+  "@pageNotFoundDesc": {},
+
+  "backToHome": "Back to Home",
+  "@backToHome": {}
 }
