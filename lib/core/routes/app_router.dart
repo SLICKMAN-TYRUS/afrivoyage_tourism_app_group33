@@ -143,6 +143,17 @@ Page<void> _noTransitionPage({required LocalKey key, required Widget child}) {
 // where you want the screen to appear without a direction bias.
 Page<void> _fadeTransitionPage({required LocalKey key, required Widget child}) {
   return CustomTransitionPage<void>(
+    key: key,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+        child: child,
+      );
+    },
+  );
+}
 
 // Directional slide — each direction carries meaning:
 //   left  → going deeper / forward into a sub-screen
@@ -154,10 +165,10 @@ Page<void> _slideTransitionPage({
   required AxisDirection direction,
 }) {
   final startOffset = switch (direction) {
-    AxisDirection.left  => const Offset(1.0, 0.0),
+    AxisDirection.left => const Offset(1.0, 0.0),
     AxisDirection.right => const Offset(-1.0, 0.0),
-    AxisDirection.up    => const Offset(0.0, 1.0),
-    AxisDirection.down  => const Offset(0.0, -1.0),
+    AxisDirection.up => const Offset(0.0, 1.0),
+    AxisDirection.down => const Offset(0.0, -1.0),
   };
   return CustomTransitionPage<void>(
     key: key,
@@ -167,10 +178,6 @@ Page<void> _slideTransitionPage({
         SlideTransition(
       position: Tween<Offset>(begin: startOffset, end: Offset.zero).animate(
         CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
-    // Directional slide — each direction carries meaning:
-    //   left  → going deeper / forward into a sub-screen
-    //   right → returning (e.g. auth flow going back to login)
-    //   up    → modal / overlay feel (forms, bottom-sheet style pages)
       ),
       child: child,
     ),
