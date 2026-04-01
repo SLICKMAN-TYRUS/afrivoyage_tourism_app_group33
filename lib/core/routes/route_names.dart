@@ -13,11 +13,12 @@ abstract final class RouteNames {
   // Full paths — use with context.go() / context.push()
   // ---------------------------------------------------------------------------
 
-  static const String splash   = '/splash';
-  static const String login    = '/login';
-  static const String home     = '/home';
+  static const String splash = '/splash';
+  static const String login = '/login';
+  static const String home = '/home';
+  static const String settings = '/settings';
   static const String bookings = '/bookings';
-  static const String impact   = '/impact';
+  static const String impact = '/impact';
   static const String provider = '/provider';
 
   // Relative segments — GoRouter appends these to the parent route.
@@ -34,11 +35,12 @@ abstract final class RouteNames {
   // ---------------------------------------------------------------------------
   // Named navigation survives path changes without touching every call site.
 
-  static const String splashName   = 'splash';
-  static const String loginName    = 'login';
-  static const String homeName     = 'home';
+  static const String splashName = 'splash';
+  static const String loginName = 'login';
+  static const String homeName = 'home';
+  static const String settingsName = 'settings';
   static const String bookingsName = 'bookings';
-  static const String impactName   = 'impact';
+  static const String impactName = 'impact';
   static const String providerName = 'provider';
   static const String earningsName = 'earnings';
   static const String listingsName = 'listings';

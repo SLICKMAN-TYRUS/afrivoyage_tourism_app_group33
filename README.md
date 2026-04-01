@@ -1,6 +1,6 @@
 # AfriVoyage — Group 33 Final Project
 ### African Leadership University · Mobile Application Development
-**Submission Deadline:** March 29, 2026
+**Submission Deadline:** April 1, 2026
 
 **Repository:** https://github.com/SLICKMAN-TYRUS/afrivoyage_tourism_app_group33.git
 **License:** MIT
