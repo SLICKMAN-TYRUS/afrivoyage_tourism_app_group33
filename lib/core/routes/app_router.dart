@@ -8,6 +8,7 @@ import '../observers/router_observer.dart';
 
 import '../../presentation/tourist/screens/login_screen.dart';
 import '../../presentation/tourist/screens/home_screen.dart';
+import '../../presentation/tourist/screens/settings_screen.dart';
 import '../../presentation/tourist/screens/booking_screen.dart';
 import '../../presentation/tourist/screens/impact_screen.dart';
 
@@ -51,6 +52,18 @@ final GoRouter appRouter = GoRouter(
         key: state.pageKey,
         child: const LoginScreen(),
         direction: AxisDirection.right,
+      ),
+    ),
+
+    // ── Settings ────────────────────────────────────────────
+    GoRoute(
+      path: RouteNames.settings,
+      name: RouteNames.settingsName,
+      parentNavigatorKey: _rootNavigatorKey,
+      pageBuilder: (context, state) => _slideTransitionPage(
+        key: state.pageKey,
+        child: const SettingsScreen(),
+        direction: AxisDirection.left,
       ),
     ),
 
@@ -140,10 +153,10 @@ Page<void> _slideTransitionPage({
   required AxisDirection direction,
 }) {
   final startOffset = switch (direction) {
-    AxisDirection.left  => const Offset(1.0, 0.0),
+    AxisDirection.left => const Offset(1.0, 0.0),
     AxisDirection.right => const Offset(-1.0, 0.0),
-    AxisDirection.up    => const Offset(0.0, 1.0),
-    AxisDirection.down  => const Offset(0.0, -1.0),
+    AxisDirection.up => const Offset(0.0, 1.0),
+    AxisDirection.down => const Offset(0.0, -1.0),
   };
   return CustomTransitionPage<void>(
     key: key,
