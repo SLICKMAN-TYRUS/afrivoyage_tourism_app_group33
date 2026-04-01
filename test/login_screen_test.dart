@@ -4,8 +4,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:afrivoyage/data/repositories/auth_repository.dart';
 import 'package:afrivoyage/presentation/tourist/blocs/auth_bloc.dart';
 import 'package:afrivoyage/presentation/tourist/screens/login_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+  });
+
   group('LoginScreen Widget Tests', () {
     testWidgets('renders login form with email and password fields',
         (tester) async {

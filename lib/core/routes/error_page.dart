@@ -29,7 +29,7 @@ class ErrorPage extends StatelessWidget {
               Icon(
                 Icons.explore_off_rounded,
                 size: 80,
-                color: theme.colorScheme.primary.withOpacity(0.5),
+                color: theme.colorScheme.primary.withAlpha((0.5 * 255).toInt()),
               ),
               const SizedBox(height: 24),
               Text(
@@ -44,7 +44,7 @@ class ErrorPage extends StatelessWidget {
                 error?.toString() ??
                     "The page you're looking for doesn't exist.",
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface.withAlpha((0.6 * 255).toInt()),
                 ),
                 textAlign: TextAlign.center,
               ),

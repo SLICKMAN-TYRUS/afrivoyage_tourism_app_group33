@@ -202,21 +202,7 @@ Page<void> _noTransitionPage({required LocalKey key, required Widget child}) {
   return NoTransitionPage<void>(key: key, child: child);
 }
 
-// Fade in — neutral and clean. Good for splash → home and any detail page
-// where you want the screen to appear without a direction bias.
-Page<void> _fadeTransitionPage({required LocalKey key, required Widget child}) {
-  return CustomTransitionPage<void>(
-    key: key,
-    child: child,
-    transitionDuration: const Duration(milliseconds: 300),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
-        child: child,
-      );
-    },
-  );
-}
+
 
 // Directional slide — each direction carries meaning:
 //   left  → going deeper / forward into a sub-screen

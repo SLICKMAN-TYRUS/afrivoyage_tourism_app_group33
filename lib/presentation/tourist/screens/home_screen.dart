@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../data/seed/seed_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../data/repositories/booking_repository.dart';
@@ -84,6 +85,8 @@ class _HomeViewState extends State<_HomeView> {
   Widget _buildHomeContent() {
     return Column(
       children: [
+        // TEMP: Seed data button for demo
+        const SeedDataButton(),
         // Search Bar
         Padding(
           padding: const EdgeInsets.all(16.0),
