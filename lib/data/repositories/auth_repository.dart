@@ -23,10 +23,8 @@ class AuthRepository {
   // ── Lazy getters — Firebase.instance only evaluated on first use ──
 
   FirebaseAuth get _auth => _authOverride ?? FirebaseAuth.instance;
-  GoogleSignIn get _googleSignIn =>
-      _googleSignInOverride ?? GoogleSignIn();
-  FirebaseFirestore get _db =>
-      _firestoreOverride ?? FirebaseFirestore.instance;
+  GoogleSignIn get _googleSignIn => _googleSignInOverride ?? GoogleSignIn();
+  FirebaseFirestore get _db => _firestoreOverride ?? FirebaseFirestore.instance;
 
   // ── Public accessors ──────────────────────────────────────────────
 
@@ -212,3 +210,15 @@ bool validatePassword(String password) =>
 
 bool validatePhone(String phone) =>
     RegExp(r'^\+?[0-9]{9,15}$').hasMatch(phone.replaceAll(' ', ''));
+
+// Email validation
+bool validateEmail(String email) {
+  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+  return emailRegex.hasMatch(email.trim());
+}
+
+// Phone validation
+bool validatePhone(String phone) {
+  final phoneRegex = RegExp(r'^\+?[0-9]{9,15}$');
+  return phoneRegex.hasMatch(phone.replaceAll(' ', ''));
+}

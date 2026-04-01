@@ -15,6 +15,8 @@ class ExperienceRepository {
     required List<String> images,
   }) async {
     try {
+      print('📝 Creating experience: $title');
+
       final docRef = await _firestore.collection(_collection).add({
         'providerId': providerId,
         'title': title,
@@ -29,9 +31,12 @@ class ExperienceRepository {
         'rating': 0.0,
         'reviewCount': 0,
       });
+
+      print('✅ Experience created: ${docRef.id}');
       return docRef.id;
     } catch (e) {
-      throw Exception('Failed to create experience: \${e.toString()}');
+      print('❌ Failed to create experience: $e');
+      throw Exception('Failed to create experience: ${e.toString()}');
     }
   }
 
@@ -41,6 +46,8 @@ class ExperienceRepository {
     double? maxPrice,
     bool? isAvailable,
   }) {
+    print('🔍 Getting experiences - category: $category, maxPrice: $maxPrice');
+
     Query query = _firestore.collection(_collection);
 
     if (category != null) {
@@ -58,6 +65,7 @@ class ExperienceRepository {
 
   // READ - Get provider's experiences
   Stream<QuerySnapshot> getProviderExperiences(String providerId) {
+    print('🔍 Getting experiences for provider: $providerId');
     return _firestore
         .collection(_collection)
         .where('providerId', isEqualTo: providerId)
@@ -70,12 +78,15 @@ class ExperienceRepository {
   }
 
   // UPDATE - Update experience
-  Future<void> updateExperience(String experienceId, Map<String, dynamic> data) async {
+  Future<void> updateExperience(
+      String experienceId, Map<String, dynamic> data) async {
     try {
       data['updatedAt'] = Timestamp.now();
       await _firestore.collection(_collection).doc(experienceId).update(data);
+      print('✅ Experience $experienceId updated');
     } catch (e) {
-      throw Exception('Failed to update experience: \${e.toString()}');
+      print('❌ Failed to update experience: $e');
+      throw Exception('Failed to update experience: ${e.toString()}');
     }
   }
 
@@ -83,8 +94,10 @@ class ExperienceRepository {
   Future<void> deleteExperience(String experienceId) async {
     try {
       await _firestore.collection(_collection).doc(experienceId).delete();
+      print('✅ Experience $experienceId deleted');
     } catch (e) {
-      throw Exception('Failed to delete experience: \${e.toString()}');
+      print('❌ Failed to delete experience: $e');
+      throw Exception('Failed to delete experience: ${e.toString()}');
     }
   }
 }

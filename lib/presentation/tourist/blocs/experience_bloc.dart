@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // ADD THIS
 import '../../../data/repositories/experience_repository.dart';
 import '../../../data/repositories/booking_repository.dart';
 
@@ -118,10 +119,15 @@ class ExperienceBloc extends Bloc<ExperienceEvent, ExperienceState> {
   ) async {
     emit(ExperienceLoading());
     try {
-      // Note: In real app, get touristId from auth
-      const touristId = 'current_user_id';
+      // ✅ FIX: Get actual user ID from Firebase Auth
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        emit(const ExperienceError('You must be logged in to book'));
+        return;
+      }
+
       final bookingId = await _bookingRepository.createBooking(
-        touristId: touristId,
+        touristId: currentUser.uid, // ✅ Real user ID!
         experienceId: event.experienceId,
         providerId: event.providerId,
         experienceDate: event.experienceDate,

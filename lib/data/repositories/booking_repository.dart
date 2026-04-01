@@ -15,6 +15,9 @@ class BookingRepository {
     required String paymentMethod,
   }) async {
     try {
+      print('📝 Creating booking for tourist: $touristId');
+      print('📦 Experience: $experienceId, Provider: $providerId');
+
       final docRef = await _firestore.collection(_collection).add({
         'touristId': touristId,
         'experienceId': experienceId,
@@ -29,14 +32,18 @@ class BookingRepository {
         'offlineSyncStatus': 'synced',
         'createdAt': Timestamp.now(),
       });
+
+      print('✅ Booking created with ID: ${docRef.id}');
       return docRef.id;
     } catch (e) {
-      throw Exception('Failed to create booking: \${e.toString()}');
+      print('❌ Failed to create booking: $e');
+      throw Exception('Failed to create booking: ${e.toString()}');
     }
   }
 
   // READ - Get tourist's bookings (CRUD: Read)
   Stream<QuerySnapshot> getTouristBookings(String touristId) {
+    print('🔍 Getting bookings for tourist: $touristId');
     return _firestore
         .collection(_collection)
         .where('touristId', isEqualTo: touristId)
@@ -49,8 +56,7 @@ class BookingRepository {
     return _firestore
         .collection(_collection)
         .where('providerId', isEqualTo: providerId)
-        .where('status', whereIn: ['pending', 'confirmed'])
-        .snapshots();
+        .where('status', whereIn: ['pending', 'confirmed']).snapshots();
   }
 
   // READ - Get single booking by ID
@@ -65,8 +71,10 @@ class BookingRepository {
         'status': status,
         'updatedAt': Timestamp.now(),
       });
+      print('✅ Booking $bookingId updated to $status');
     } catch (e) {
-      throw Exception('Failed to update booking: \${e.toString()}');
+      print('❌ Failed to update booking: $e');
+      throw Exception('Failed to update booking: ${e.toString()}');
     }
   }
 
@@ -78,8 +86,10 @@ class BookingRepository {
         'status': 'confirmed',
         'updatedAt': Timestamp.now(),
       });
+      print('✅ Payment confirmed for booking: $bookingId');
     } catch (e) {
-      throw Exception('Failed to confirm payment: \${e.toString()}');
+      print('❌ Failed to confirm payment: $e');
+      throw Exception('Failed to confirm payment: ${e.toString()}');
     }
   }
 
@@ -90,13 +100,18 @@ class BookingRepository {
         'status': 'cancelled',
         'cancelledAt': Timestamp.now(),
       });
+      print('✅ Booking $bookingId cancelled');
     } catch (e) {
-      throw Exception('Failed to cancel booking: \${e.toString()}');
+      print('❌ Failed to cancel booking: $e');
+      throw Exception('Failed to cancel booking: ${e.toString()}');
     }
   }
 
   // For Video Demo: Get all bookings (to show in Firebase Console)
   Stream<QuerySnapshot> getAllBookings() {
-    return _firestore.collection(_collection).orderBy('createdAt', descending: true).snapshots();
+    return _firestore
+        .collection(_collection)
+        .orderBy('createdAt', descending: true)
+        .snapshots();
   }
 }

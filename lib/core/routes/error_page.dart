@@ -45,7 +45,8 @@ class ErrorPage extends StatelessWidget {
               Text(
                 error?.toString() ?? l10n.pageNotFoundDesc,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withAlpha((0.6 * 255).toInt()),
+                  color: theme.colorScheme.onSurface
+                      .withAlpha((0.6 * 255).toInt()),
                 ),
                 textAlign: TextAlign.center,
               ),

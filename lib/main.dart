@@ -11,6 +11,7 @@ import 'package:afrivoyage/presentation/shared/theme/theme_cubit.dart';
 import 'package:afrivoyage/firebase_options.dart';
 import 'package:afrivoyage/l10n/app_localizations.dart';
 import 'package:afrivoyage/l10n/fallback_localizations.dart';
+import 'data/seed/seed_firestore.dart';
 
 // Starting point of the whole app. Keep this file lean —
 void main() async {
@@ -46,7 +47,6 @@ void main() async {
   } catch (e) {
     print('Firestore seeding failed: $e');
   }
-
 
   // Load prefs before runApp, not inside the widget tree.
   // If we await it later we get a flash of the wrong theme on startup — not great.
@@ -131,7 +131,6 @@ class AfriVoyageApp extends StatelessWidget {
       ),
       useMaterial3: true,
       scaffoldBackgroundColor: const Color(0xFFFAFAFA),
-
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
@@ -144,7 +143,6 @@ class AfriVoyageApp extends StatelessWidget {
           color: Color(0xFF1B5E20),
         ),
       ),
-
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         selectedItemColor: Color(0xFF2E7D32),
         unselectedItemColor: Color(0xFF9E9E9E),
@@ -152,27 +150,26 @@ class AfriVoyageApp extends StatelessWidget {
         elevation: 8,
         type: BottomNavigationBarType.fixed,
       ),
-
       cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       ),
-
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: seedColor,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(48),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       ),
-
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }
@@ -191,7 +188,6 @@ class AfriVoyageApp extends StatelessWidget {
       ),
       useMaterial3: true,
       scaffoldBackgroundColor: const Color(0xFF121212),
-
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
@@ -204,7 +200,6 @@ class AfriVoyageApp extends StatelessWidget {
           color: Color(0xFF66BB6A),
         ),
       ),
-
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         selectedItemColor: Color(0xFF66BB6A),
         unselectedItemColor: Color(0xFF757575),
@@ -212,28 +207,27 @@ class AfriVoyageApp extends StatelessWidget {
         elevation: 8,
         type: BottomNavigationBarType.fixed,
       ),
-
       cardTheme: CardThemeData(
         elevation: 2,
         color: const Color(0xFF1E1E1E),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       ),
-
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: seedColor,
           foregroundColor: Colors.black,
           minimumSize: const Size.fromHeight(48),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       ),
-
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         filled: true,
         fillColor: const Color(0xFF2A2A2A),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }
