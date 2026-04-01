@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import 'package:flutter/material.dart';
 import '../../data/seed/seed_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../data/repositories/booking_repository.dart';
 import '../../../data/repositories/experience_repository.dart';
 import '../blocs/experience_bloc.dart';
-
+// If you want to add static demo data, you can add it here, but the Bloc-based dynamic loading is preferred for production/demo.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -273,9 +272,6 @@ class _HomeViewState extends State<_HomeView> {
                           style: TextStyle(color: Colors.grey[400]),
                         ),
                       ],
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
