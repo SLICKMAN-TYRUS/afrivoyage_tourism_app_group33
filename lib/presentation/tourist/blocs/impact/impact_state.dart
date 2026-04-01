@@ -1,5 +1,7 @@
 part of 'impact_bloc.dart';
 
+import 'package:afrivoyage_tourism_app_group33/domain/models/booking_model.dart';
+
 class ImpactState extends Equatable {
   final int totalSpent;
   final int familiesSupported;
