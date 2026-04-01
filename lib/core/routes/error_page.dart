@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/app_localizations.dart';
 import 'route_names.dart';
 
 // Shown whenever GoRouter hits a route it doesn't recognize,
@@ -15,9 +16,10 @@ class ErrorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Page Not Found')),
+      appBar: AppBar(title: Text(l10n.pageNotFound)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -33,7 +35,7 @@ class ErrorPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Oops! Lost in Africa?',
+                l10n.oopsLostInAfrica,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -41,8 +43,7 @@ class ErrorPage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                error?.toString() ??
-                    "The page you're looking for doesn't exist.",
+                error?.toString() ?? l10n.pageNotFoundDesc,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurface.withAlpha((0.6 * 255).toInt()),
                 ),
@@ -53,7 +54,7 @@ class ErrorPage extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: () => context.go(RouteNames.home),
                 icon: const Icon(Icons.home_rounded),
-                label: const Text('Back to Home'),
+                label: Text(l10n.backToHome),
               ),
             ],
           ),
