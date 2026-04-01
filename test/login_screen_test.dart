@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:afrivoyage/presentation/tourist/screens/login_screen.dart';
-
 void main() {
-  group('LoginScreen smoke tests', () {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+  });
+
+  group('LoginScreen Widget Tests', () {
     testWidgets('renders login form with email and password fields',
         (tester) async {
       // LoginScreen manages its own BlocProvider internally

@@ -142,11 +142,25 @@ final GoRouter appRouter = GoRouter(
   ],
 );
 
-// ── Page transition helpers ────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Page transition helpers
+// ---------------------------------------------------------------------------
 
-Page<void> _noTransitionPage({required LocalKey key, required Widget child}) =>
-    NoTransitionPage<void>(key: key, child: child);
+// No animation — intentional for tab switches.
+// Instant feels snappier; animated tab switches look jittery.
+Page<void> _noTransitionPage({required LocalKey key, required Widget child}) {
+  return NoTransitionPage<void>(key: key, child: child);
+}
 
+// Fade in — neutral and clean. Good for splash → home and any detail page
+// where you want the screen to appear without a direction bias.
+Page<void> _fadeTransitionPage({required LocalKey key, required Widget child}) {
+  return CustomTransitionPage<void>(
+
+// Directional slide — each direction carries meaning:
+//   left  → going deeper / forward into a sub-screen
+//   right → returning (e.g. auth flow going back to login)
+//   up    → modal / overlay feel (forms, bottom-sheet style pages)
 Page<void> _slideTransitionPage({
   required LocalKey key,
   required Widget child,
@@ -166,6 +180,10 @@ Page<void> _slideTransitionPage({
         SlideTransition(
       position: Tween<Offset>(begin: startOffset, end: Offset.zero).animate(
         CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+    // Directional slide — each direction carries meaning:
+    //   left  → going deeper / forward into a sub-screen
+    //   right → returning (e.g. auth flow going back to login)
+    //   up    → modal / overlay feel (forms, bottom-sheet style pages)
       ),
       child: child,
     ),

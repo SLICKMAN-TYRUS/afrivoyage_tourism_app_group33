@@ -84,9 +84,17 @@ class AuthError extends AuthState {
   List<Object?> get props => [message];
 }
 
+
 class PasswordResetSent extends AuthState {
   final String email;
   const PasswordResetSent(this.email);
+  @override
+  List<Object?> get props => [email];
+}
+
+class EmailVerificationSent extends AuthState {
+  final String email;
+  const EmailVerificationSent(this.email);
   @override
   List<Object?> get props => [email];
 }
@@ -117,9 +125,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user =
           await _repo.signInWithEmail(event.email, event.password);
       if (user != null) {
+        // Automatically block login if email is not verified
+        if (!user.emailVerified) {
+          await _repo.signOut();
+          emit(const AuthError(
+            'Email not verified. Please check your inbox for verification link.'
+            ));
+          return;
+        }
+
         final profile = await _repo.getUserProfile(user.uid);
-        final accountType =
-            (profile?['accountType'] as String?) ?? 'tourist';
+        final accountType =(profile?['accountType'] as String?) ?? 'tourist';
         emit(AuthAuthenticated(user, accountType: accountType));
       } else {
         emit(const AuthError('Login failed. Please try again.'));
@@ -128,6 +144,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthError(_clean(e)));
     }
   }
+ 
+
 
   Future<void> _onLoginWithGoogle(
     LoginWithGoogle event,
@@ -164,7 +182,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         accountType: event.accountType,
       );
       if (user != null) {
-        emit(AuthAuthenticated(user, accountType: event.accountType));
+        await user.sendEmailVerification();
+        await _repo.signOut();
+        emit(EmailVerificationSent(event.email));
       } else {
         emit(const AuthError('Account creation failed. Please try again.'));
       }
