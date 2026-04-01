@@ -11,6 +11,7 @@ import '../../presentation/tourist/blocs/auth/auth_bloc.dart';
 import '../../presentation/tourist/screens/login_screen.dart';
 import '../../presentation/tourist/screens/home_screen.dart';
 import '../../presentation/tourist/screens/booking_confirmation_screen.dart';
+import '../../presentation/tourist/screens/booking_screen.dart';
 import '../../presentation/tourist/screens/impact_dashboard_screen.dart';
 import '../../presentation/provider/screens/provider_dashboard.dart';
 import '../../presentation/provider/screens/provider_earnings.dart';

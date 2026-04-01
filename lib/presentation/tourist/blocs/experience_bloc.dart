@@ -3,13 +3,14 @@ import 'package:equatable/equatable.dart';
 import 'package:afrivoyage/data/repositories/experience_repository.dart'; // Role 4
 import 'package:afrivoyage/domain/entities/experience.dart';
 
-part 'experience_event.dart';
-part 'experience_state.dart';
+part 'experience/experience_event.dart';
+part 'experience/experience_state.dart';
 
 class ExperienceBloc extends Bloc<ExperienceEvent, ExperienceState> {
   final ExperienceRepository experienceRepository;
 
-  ExperienceBloc({required this.experienceRepository}) : super(ExperienceInitial()) {
+  ExperienceBloc({required this.experienceRepository})
+      : super(ExperienceInitial()) {
     on<LoadExperiences>(_onLoadExperiences);
     on<SearchExperiences>(_onSearchExperiences);
   }
@@ -35,7 +36,8 @@ class ExperienceBloc extends Bloc<ExperienceEvent, ExperienceState> {
   ) async {
     emit(ExperienceLoading());
     try {
-      final experiences = await experienceRepository.searchExperiences(event.query);
+      final experiences =
+          await experienceRepository.searchExperiences(event.query);
       emit(ExperienceLoaded(experiences));
     } catch (e) {
       emit(ExperienceError(e.toString()));
