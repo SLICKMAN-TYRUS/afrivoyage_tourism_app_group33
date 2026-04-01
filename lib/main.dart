@@ -1,8 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'core/routes/app_router.dart';
-import 'firebase_options.dart';
+import 'package:afrivoyage/firebase_options.dart';
+import 'package:afrivoyage/routes/app_router.dart';
 
+// Starting point of the whole app. Keep this file lean —
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize Firebase - Role 4

@@ -1,42 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../data/repositories/auth_repository.dart';
-import '../../../data/repositories/booking_repository.dart';
-import '../../../data/repositories/experience_repository.dart';
-import '../blocs/provider_bloc.dart';
+import '../../../l10n/app_localizations.dart';
 
-class ProviderDashboard extends StatelessWidget {
+// Static bookings for demo
+final _kBookings = <Map<String, dynamic>>[
+  {
+    'id': 'BKP001',
+    'title': 'Gorilla Trekking Experience',
+    'touristName': 'Alice M.',
+    'date': 'Apr 15, 2026',
+    'groupSize': 2,
+    'paymentMethod': 'MTN MoMo',
+    'total': 190000,
+    'status': 'confirmed',
+  },
+  {
+    'id': 'BKP002',
+    'title': 'Coffee Farm Tour & Tasting',
+    'touristName': 'Jean P.',
+    'date': 'Apr 10, 2026',
+    'groupSize': 4,
+    'paymentMethod': 'Airtel Money',
+    'total': 80000,
+    'status': 'pending',
+  },
+  {
+    'id': 'BKP003',
+    'title': 'Gorilla Trekking Experience',
+    'touristName': 'Emma K.',
+    'date': 'Mar 30, 2026',
+    'groupSize': 1,
+    'paymentMethod': 'MTN MoMo',
+    'total': 95000,
+    'status': 'completed',
+  },
+];
+
+class ProviderDashboard extends StatefulWidget {
   const ProviderDashboard({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final currentUser = AuthRepository().currentUser;
-    final providerId = currentUser?.uid ?? 'test_provider';
-
-    return BlocProvider(
-      create: (context) => ProviderBloc(
-        bookingRepository: BookingRepository(),
-        experienceRepository: ExperienceRepository(),
-      )..add(LoadProviderBookings(providerId)),
-      child: const _ProviderDashboardView(),
-    );
-  }
+  State<ProviderDashboard> createState() => _ProviderDashboardState();
 }
 
-class _ProviderDashboardView extends StatelessWidget {
-  const _ProviderDashboardView();
+class _ProviderDashboardState extends State<ProviderDashboard> {
+  // Local copy so status updates reflect in UI
+  late final List<Map<String, dynamic>> _bookings =
+      _kBookings.map((b) => Map<String, dynamic>.from(b)).toList();
+
+  int get _pendingCount =>
+      _bookings.where((b) => b['status'] == 'pending').length;
+  int get _confirmedCount =>
+      _bookings.where((b) => b['status'] == 'confirmed').length;
+  int get _completedCount =>
+      _bookings.where((b) => b['status'] == 'completed').length;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Provider Dashboard'),
+        title: Text(l10n.providerDashboard),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
+            onPressed: () => _showNotifications(context),
           ),
         ],
       ),
@@ -45,7 +73,7 @@ class _ProviderDashboardView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Card
+            // ── Welcome card ─────────────────────────────
             Card(
               color: Colors.green[900],
               child: Padding(
@@ -58,234 +86,169 @@ class _ProviderDashboardView extends StatelessWidget {
                         const CircleAvatar(
                           radius: 30,
                           backgroundColor: Colors.white,
-                          child:
-                              Icon(Icons.person, size: 32, color: Colors.green),
+                          child: Icon(Icons.person,
+                              size: 32, color: Colors.green),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Welcome back,',
-                                style: TextStyle(color: Colors.green[100]),
-                              ),
+                              Text(l10n.welcomeBack,
+                                  style: TextStyle(
+                                      color: Colors.green[100])),
                               const Text(
-                                'Provider Name',
+                                'Jean-Baptiste R.',
                                 style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
                               ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    const Row(
+                    const SizedBox(height: 16),
+                    Row(
                       children: [
-                        Icon(Icons.verified, color: Colors.amber),
-                        SizedBox(width: 8),
-                        Text(
-                          'Verified Guide - RDB Certified',
-                          style: TextStyle(color: Colors.white),
-                        ),
+                        const Icon(Icons.verified, color: Colors.amber),
+                        const SizedBox(width: 8),
+                        Text(l10n.verifiedGuideBadge,
+                            style: const TextStyle(color: Colors.white)),
                       ],
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
-            // Earnings Summary
+            // ── Earnings summary ─────────────────────────
             Row(
               children: [
                 Expanded(
-                  child: _buildSummaryCard(
-                    'This Month',
-                    'RWF 680K',
-                    Icons.trending_up,
-                    Colors.green,
-                  ),
-                ),
+                    child: _summaryCard(l10n.thisMonth,
+                        'RWF 680K', Icons.trending_up,
+                        Colors.green)),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildSummaryCard(
-                    'Today',
-                    '3 Bookings',
-                    Icons.calendar_today,
-                    Colors.blue,
-                  ),
-                ),
+                    child: _summaryCard(l10n.today,
+                        '${_bookings.length} ${l10n.bookings}',
+                        Icons.calendar_today, Colors.blue)),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
-            // Quick Stats
+            // ── Quick stats ──────────────────────────────
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 16, horizontal: 8),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStatColumn('Pending', '3', Colors.orange),
-                    _buildStatColumn('Confirmed', '8', Colors.blue),
-                    _buildStatColumn('Completed', '12', Colors.green),
+                    _statCol(l10n.pending,
+                        '$_pendingCount', Colors.orange),
+                    _divider(),
+                    _statCol(l10n.confirmed,
+                        '$_confirmedCount', Colors.blue),
+                    _divider(),
+                    _statCol(l10n.completed,
+                        '$_completedCount', Colors.green),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
-            // Today's Bookings Header
+            // ── Recent bookings ──────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Recent Bookings',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('View All'),
-                ),
+                Text(l10n.recentBookings,
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.bold)),
+                TextButton(onPressed: () {}, child: Text(l10n.viewAll)),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
+            ..._bookings.map((b) => _bookingCard(context, b)),
 
-            // Bookings List
-            BlocBuilder<ProviderBloc, ProviderState>(
-              builder: (context, state) {
-                if (state is ProviderLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state is ProviderError) {
-                  return Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text('Error: ${state.message}'),
-                    ),
-                  );
-                }
-                if (state is ProviderLoaded) {
-                  if (state.bookings.isEmpty) {
-                    return const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: Center(child: Text('No bookings yet')),
-                      ),
-                    );
-                  }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: state.bookings.length,
-                    itemBuilder: (context, index) {
-                      final booking =
-                          state.bookings[index].data() as Map<String, dynamic>;
-                      return _buildBookingCard(
-                          context, booking, state.bookings[index].id);
-                    },
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-
-            const SizedBox(height: 24),
-            // Quick Actions
-            Text(
-              'Quick Actions',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
+            const SizedBox(height: 20),
+            // ── Quick actions ────────────────────────────
+            Text(l10n.quickActions,
+                style: const TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
-                  child: _buildActionCard(
-                    Icons.add,
-                    'Add Experience',
-                    () => context.push('/provider/listings'),
-                  ),
-                ),
+                    child: _actionCard(
+                        Icons.add, l10n.addExperience,
+                        () => context.push('/provider/listings'))),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildActionCard(
-                    Icons.calendar_today,
-                    'Availability',
-                    () {},
-                  ),
-                ),
+                    child: _actionCard(
+                        Icons.calendar_today, l10n.availability,
+                        () => _showAvailabilityDialog(context))),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
-                  child: _buildActionCard(
-                    Icons.analytics,
-                    'Analytics',
-                    () => context.push('/provider/earnings'),
-                  ),
-                ),
+                    child: _actionCard(
+                        Icons.analytics, l10n.analytics,
+                        () => context.push('/provider/earnings'))),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildActionCard(
-                    Icons.support,
-                    'Support',
-                    () {},
-                  ),
-                ),
+                    child: _actionCard(
+                        Icons.support_agent, l10n.support,
+                        () => _showSupportDialog(context))),
               ],
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
-        onTap: (index) {
-          if (index == 1) context.push('/provider/listings');
-          if (index == 3) context.push('/provider/earnings');
+        onTap: (i) {
+          if (i == 1) context.push('/provider/listings');
+          if (i == 3) context.push('/provider/earnings');
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            activeIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
+              icon: const Icon(Icons.dashboard_outlined),
+              activeIcon: const Icon(Icons.dashboard),
+              label: l10n.dashboard),
           BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt_outlined),
-            activeIcon: Icon(Icons.list_alt),
-            label: 'Listings',
-          ),
+              icon: const Icon(Icons.list_alt_outlined),
+              activeIcon: const Icon(Icons.list_alt),
+              label: l10n.listings),
           BottomNavigationBarItem(
-            icon: Icon(Icons.message_outlined),
-            activeIcon: Icon(Icons.message),
-            label: 'Messages',
-          ),
+              icon: const Icon(Icons.message_outlined),
+              activeIcon: const Icon(Icons.message),
+              label: l10n.messages),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            activeIcon: Icon(Icons.account_balance_wallet),
-            label: 'Earnings',
-          ),
+              icon: const Icon(Icons.account_balance_wallet_outlined),
+              activeIcon: const Icon(Icons.account_balance_wallet),
+              label: l10n.earnings),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+              icon: const Icon(Icons.person_outline),
+              activeIcon: const Icon(Icons.person),
+              label: l10n.navProfile),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryCard(
+  // ── Helpers ──────────────────────────────────────────────
+
+  Widget _summaryCard(
       String title, String value, IconData icon, Color color) {
     return Card(
       child: Padding(
@@ -294,116 +257,115 @@ class _ProviderDashboardView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(icon, color: color),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: TextStyle(color: Colors.grey[400], fontSize: 12),
-            ),
+            const SizedBox(height: 10),
+            Text(title,
+                style: TextStyle(
+                    color: Colors.grey[500], fontSize: 12)),
             const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text(value,
+                style: const TextStyle(
+                    fontSize: 20, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatColumn(String label, String value, Color color) {
+  Widget _statCol(String label, String value, Color color) {
     return Column(
       children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
+        Text(value,
+            style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: color)),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(color: Colors.grey[400], fontSize: 12),
-        ),
+        Text(label,
+            style: TextStyle(
+                color: Colors.grey[500], fontSize: 12)),
       ],
     );
   }
 
-  Widget _buildBookingCard(
-      BuildContext context, Map<String, dynamic> booking, String id) {
-    final status = booking['status'] as String? ?? 'pending';
-    final statusColor = _getStatusColor(status);
+  Widget _divider() => Container(
+      height: 40, width: 1, color: Colors.grey.withValues(alpha: 0.3));
+
+  Widget _bookingCard(
+      BuildContext context, Map<String, dynamic> b) {
+    final l10n = AppLocalizations.of(context)!;
+    final status = b['status'] as String;
+    final sc = _statusColor(status);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
+        contentPadding: const EdgeInsets.all(14),
         leading: Container(
-          width: 50,
-          height: 50,
+          width: 46,
+          height: 46,
           decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(12),
+            color: sc.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(_getStatusIcon(status), color: statusColor),
+          child: Icon(_statusIcon(status), color: sc),
         ),
         title: Text(
-          'Booking #${id.substring(0, 6)}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          '${b['touristName']} · ${b['title']}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 13),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             Text(
-                '${booking['groupSize']} people • ${booking['paymentMethod']}'),
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                status.toUpperCase(),
-                style: TextStyle(
-                  color: statusColor,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
+              '${b['date']} · ${b['groupSize']} people · ${b['paymentMethod']}',
+              style: TextStyle(
+                  color: Colors.grey[500], fontSize: 12),
+            ),
+            const SizedBox(height: 5),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: sc.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(status.toUpperCase(),
+                      style: TextStyle(
+                          color: sc,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold)),
                 ),
-              ),
+                const Spacer(),
+                Text(
+                  'RWF ${_fmt((b['total'] as int).toDouble())}',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13),
+                ),
+              ],
             ),
           ],
         ),
         trailing: PopupMenuButton<String>(
-          onSelected: (value) {
-            if (value == 'confirm') {
-              context
-                  .read<ProviderBloc>()
-                  .add(UpdateBookingStatus(id, 'confirmed'));
-            } else if (value == 'complete') {
-              context
-                  .read<ProviderBloc>()
-                  .add(UpdateBookingStatus(id, 'completed'));
-            }
-          },
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: 'confirm',
-              child: Text('Confirm Booking'),
-            ),
-            const PopupMenuItem(
-              value: 'complete',
-              child: Text('Mark Complete'),
-            ),
-            const PopupMenuItem(
-              value: 'cancel',
-              child:
-                  Text('Cancel Booking', style: TextStyle(color: Colors.red)),
+          onSelected: (v) => setState(() => b['status'] = v),
+          itemBuilder: (_) => [
+            PopupMenuItem(
+                value: 'confirmed',
+                child: Text(l10n.confirmBooking)),
+            PopupMenuItem(
+                value: 'completed',
+                child: Text(l10n.markComplete)),
+            PopupMenuItem(
+              value: 'cancelled',
+              child: Text(l10n.cancelBooking,
+                  style:
+                      TextStyle(color: Colors.red[700])),
             ),
           ],
         ),
@@ -411,8 +373,31 @@ class _ProviderDashboardView extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(String? status) {
-    switch (status) {
+  Widget _actionCard(
+      IconData icon, String label, VoidCallback onTap) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            children: [
+              Icon(icon, size: 30, color: Colors.green),
+              const SizedBox(height: 8),
+              Text(label,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 13)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _statusColor(String? s) {
+    switch (s) {
       case 'confirmed':
         return Colors.blue;
       case 'completed':
@@ -424,8 +409,8 @@ class _ProviderDashboardView extends StatelessWidget {
     }
   }
 
-  IconData _getStatusIcon(String? status) {
-    switch (status) {
+  IconData _statusIcon(String? s) {
+    switch (s) {
       case 'confirmed':
         return Icons.check;
       case 'completed':
@@ -437,25 +422,105 @@ class _ProviderDashboardView extends StatelessWidget {
     }
   }
 
-  Widget _buildActionCard(IconData icon, String label, VoidCallback onTap) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Column(
-            children: [
-              Icon(icon, size: 32, color: Colors.green),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-            ],
-          ),
+  String _fmt(double v) {
+    if (v >= 1000) {
+      final k = v / 1000;
+      return '${k % 1 == 0 ? k.toInt() : k.toStringAsFixed(1)}K';
+    }
+    return v.toStringAsFixed(0);
+  }
+
+  void _showNotifications(BuildContext ctx) {
+    final l10n = AppLocalizations.of(ctx)!;
+    showModalBottomSheet(
+      context: ctx,
+      shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.notifications,
+                style: const TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: CircleAvatar(
+                  backgroundColor:
+                      Colors.blue.withValues(alpha: 0.15),
+                  child: const Icon(Icons.book_online,
+                      color: Colors.blue, size: 20)),
+              title: Text(l10n.newBookingNotif,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 13)),
+              subtitle: const Text(
+                  'Alice M. booked Gorilla Trekking for Apr 15.',
+                  style: TextStyle(fontSize: 12)),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: CircleAvatar(
+                  backgroundColor:
+                      Colors.green.withValues(alpha: 0.15),
+                  child: const Icon(Icons.payment,
+                      color: Colors.green, size: 20)),
+              title: Text(l10n.paymentReceived,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 13)),
+              subtitle: const Text('RWF 95,000 received via MTN MoMo.',
+                  style: TextStyle(fontSize: 12)),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  void _showAvailabilityDialog(BuildContext ctx) {
+    final l10n = AppLocalizations.of(ctx)!;
+    showDialog(
+      context: ctx,
+      builder: (dialogCtx) => AlertDialog(
+        title: Text(l10n.setAvailability),
+        content: Text(l10n.availabilityComingSoon),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogCtx),
+              child: Text(l10n.ok))
+        ],
+      ),
+    );
+  }
+
+  void _showSupportDialog(BuildContext ctx) {
+    final l10n = AppLocalizations.of(ctx)!;
+    showDialog(
+      context: ctx,
+      builder: (dialogCtx) => AlertDialog(
+        title: Text(l10n.providerSupport),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.contactUs,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            const Text('📧  providers@afrivoyage.rw'),
+            const SizedBox(height: 4),
+            const Text('📞  +250 788 999 000'),
+            const SizedBox(height: 4),
+            const Text('⏰  Mon–Fri  8 am – 6 pm (CAT)'),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogCtx),
+              child: Text(l10n.close))
+        ],
       ),
     );
   }
