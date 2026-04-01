@@ -73,7 +73,9 @@ class LoginScreen extends StatelessWidget {
                         onPressed: state is AuthLoading
                             ? null
                             : () {
-                                context.read<AuthBloc>().add(SignInWithGoogle());
+                                context
+                                    .read<AuthBloc>()
+                                    .add(SignInWithGoogle());
                               },
                         isOutlined: true,
                       ),

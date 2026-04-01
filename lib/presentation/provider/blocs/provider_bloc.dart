@@ -100,7 +100,7 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
               .then((expSnapshot) {
             // This is a simplification - in real app, combine streams properly
           });
-          return ProviderLoaded(snapshot.docs, []);
+          return ProviderLoaded(snapshot.docs, const []);
         },
         onError: (_, __) => const ProviderError('Failed to load bookings'),
       );
