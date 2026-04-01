@@ -41,46 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDJ7Zc0RsZxFNQjUq0Eh6_WV-9w1JYAOGg',
-    appId: '1:884646714045:web:ed7084975d393841eff5d4',
-    messagingSenderId: '884646714045',
-    projectId: 'afrivoyage-group33',
-    authDomain: 'afrivoyage-group33.firebaseapp.com',
-    storageBucket: 'afrivoyage-group33.firebasestorage.app',
+    apiKey: 'AIzaSyA8sSGOlFmzmdEk-Kn-qYEbm3LaWRHsvSc',
+    appId: '1:888780171409:web:2b44541c65ab868eb93730',
+    messagingSenderId: '888780171409',
+    projectId: 'afri-voyage',
+    authDomain: 'afri-voyage.firebaseapp.com',
+    storageBucket: 'afri-voyage.firebasestorage.app',
+    measurementId: 'G-ZKWVCGWVVY',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDSCNsiHlG937f8SKtsq3TdRFqXM9HKyLA',
-    appId: '1:884646714045:android:0077aa175ace83a3eff5d4',
-    messagingSenderId: '884646714045',
-    projectId: 'afrivoyage-group33',
-    storageBucket: 'afrivoyage-group33.firebasestorage.app',
+    apiKey: 'AIzaSyDEHy1_PnUERMDR4xhxXgl0fFQ4pf5mim0',
+    appId: '1:888780171409:android:6acc265e7df2155fb93730',
+    messagingSenderId: '888780171409',
+    projectId: 'afri-voyage',
+    storageBucket: 'afri-voyage.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBDlmpaiyKuVuG6HT1vFDh8P7_lziXzbC0',
-    appId: '1:884646714045:ios:81829f8b43e1e09ceff5d4',
-    messagingSenderId: '884646714045',
-    projectId: 'afrivoyage-group33',
-    storageBucket: 'afrivoyage-group33.firebasestorage.app',
+    apiKey: 'AIzaSyAuYkDG0eS0o3y0sQHmQH47o0cES8y5PVE',
+    appId: '1:888780171409:ios:1ee7ff576ca17feeb93730',
+    messagingSenderId: '888780171409',
+    projectId: 'afri-voyage',
+    storageBucket: 'afri-voyage.firebasestorage.app',
     iosBundleId: 'com.group33.afrivoyage',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBDlmpaiyKuVuG6HT1vFDh8P7_lziXzbC0',
-    appId: '1:884646714045:ios:81829f8b43e1e09ceff5d4',
-    messagingSenderId: '884646714045',
-    projectId: 'afrivoyage-group33',
-    storageBucket: 'afrivoyage-group33.firebasestorage.app',
+    apiKey: 'AIzaSyAuYkDG0eS0o3y0sQHmQH47o0cES8y5PVE',
+    appId: '1:888780171409:ios:1ee7ff576ca17feeb93730',
+    messagingSenderId: '888780171409',
+    projectId: 'afri-voyage',
+    storageBucket: 'afri-voyage.firebasestorage.app',
     iosBundleId: 'com.group33.afrivoyage',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDJ7Zc0RsZxFNQjUq0Eh6_WV-9w1JYAOGg',
-    appId: '1:884646714045:web:aa0c76ef74b4f2d2eff5d4',
-    messagingSenderId: '884646714045',
-    projectId: 'afrivoyage-group33',
-    authDomain: 'afrivoyage-group33.firebaseapp.com',
-    storageBucket: 'afrivoyage-group33.firebasestorage.app',
+    apiKey: 'AIzaSyA8sSGOlFmzmdEk-Kn-qYEbm3LaWRHsvSc',
+    appId: '1:888780171409:web:700965965ae47c41b93730',
+    messagingSenderId: '888780171409',
+    projectId: 'afri-voyage',
+    authDomain: 'afri-voyage.firebaseapp.com',
+    storageBucket: 'afri-voyage.firebasestorage.app',
+    measurementId: 'G-42D15KMZQQ',
   );
+
 }

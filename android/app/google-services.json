@@ -1,45 +1,45 @@
 {
   "project_info": {
-    "project_number": "884646714045",
-    "project_id": "afrivoyage-group33",
-    "storage_bucket": "afrivoyage-group33.firebasestorage.app"
+    "project_number": "888780171409",
+    "project_id": "afri-voyage",
+    "storage_bucket": "afri-voyage.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:884646714045:android:0077aa175ace83a3eff5d4",
+        "mobilesdk_app_id": "1:888780171409:android:6acc265e7df2155fb93730",
         "android_client_info": {
           "package_name": "com.group33.afrivoyage"
         }
       },
       "oauth_client": [
         {
-          "client_id": "884646714045-4a4c392r4j5bhtr0mnc34s2i50kso5n1.apps.googleusercontent.com",
+          "client_id": "888780171409-9hds5bid6tbk3cqlfnqj1ou0ph6vuaah.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.group33.afrivoyage",
-            "certificate_hash": "f74b9cd13bc37c20966594342c0fad42e152fc30"
+            "certificate_hash": "537e47ce3d901eb137f2e97f3a029b605f1dc6c6"
           }
         },
         {
-          "client_id": "884646714045-hab208qdga797702osd57vff8flvk34m.apps.googleusercontent.com",
+          "client_id": "888780171409-bapn688k5foi8kak11vl0nr0fhq4jq2l.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDSCNsiHlG937f8SKtsq3TdRFqXM9HKyLA"
+          "current_key": "AIzaSyDEHy1_PnUERMDR4xhxXgl0fFQ4pf5mim0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "884646714045-hab208qdga797702osd57vff8flvk34m.apps.googleusercontent.com",
+              "client_id": "888780171409-bapn688k5foi8kak11vl0nr0fhq4jq2l.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "884646714045-70431ka39tq1c7pknu9f7rmkalnjdsen.apps.googleusercontent.com",
+              "client_id": "888780171409-c108dhkskfcm4evjgt1ohv18tn759360.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.group33.afrivoyage"
