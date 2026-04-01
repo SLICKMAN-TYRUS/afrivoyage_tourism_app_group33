@@ -34,9 +34,19 @@ void main() async {
 
   // Firebase has to go first — pretty much everything else depends on it.
   // Using DefaultFirebaseOptions so it works correctly on both Android and iOS.
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Seed Firestore with initial data (remove or comment out after first run)
+  try {
+    await seedFirestore();
+    print('Firestore seeding complete!');
+  } catch (e) {
+    print('Firestore seeding failed: $e');
+  }
+
 
   // Load prefs before runApp, not inside the widget tree.
   // If we await it later we get a flash of the wrong theme on startup — not great.
