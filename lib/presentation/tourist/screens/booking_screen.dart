@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../data/repositories/booking_repository.dart';
 
 // ─────────────────────────────────────────────
 // Static experience data — keyed by id
@@ -14,6 +16,7 @@ const _kExpData = <String, Map<String, dynamic>>{
     'color': 0xFF1B5E20,
     'description':
         'Trek through lush rainforests to encounter endangered mountain gorillas in their natural habitat.',
+        'providerId': 'provider_gorilla_01',
   },
   'exp2': {
     'title': 'Traditional Intore Dance Workshop',
@@ -23,6 +26,7 @@ const _kExpData = <String, Map<String, dynamic>>{
     'color': 0xFF4A148C,
     'description':
         'Learn the powerful Intore dance — a UNESCO-recognised cultural heritage of Rwanda.',
+        'providerId': 'provider_intore_01',
   },
   'exp3': {
     'title': 'Coffee Farm Tour & Tasting',
@@ -32,6 +36,7 @@ const _kExpData = <String, Map<String, dynamic>>{
     'color': 0xFF4E342E,
     'description':
         'Visit a local coffee cooperative and learn about Rwanda\'s famous single-origin coffee.',
+        'providerId': 'provider_coffee_01',
   },
   'exp4': {
     'title': 'Nyungwe Forest Canopy Walk',
@@ -41,6 +46,7 @@ const _kExpData = <String, Map<String, dynamic>>{
     'color': 0xFF2E7D32,
     'description':
         'Walk 70 m above the ground on a suspension bridge through one of Africa\'s oldest rainforests.',
+        'providerId': 'provider_nyungwe_01',
   },
   'exp5': {
     'title': 'Lake Kivu Sunset Cruise',
@@ -50,6 +56,7 @@ const _kExpData = <String, Map<String, dynamic>>{
     'color': 0xFF01579B,
     'description':
         'Sail on beautiful Lake Kivu while watching the sunset over the Congo Nile Trail mountains.',
+        'providerId': 'provider_kivu_01',
   },
   'exp6': {
     'title': 'Kigali City Heritage Tour',
@@ -59,6 +66,7 @@ const _kExpData = <String, Map<String, dynamic>>{
     'color': 0xFFE65100,
     'description':
         'Explore Kigali\'s transformation from the Genocide Memorial to bustling Kimironko Market.',
+        'providerId': 'provider_kigali_01',
   },
 };
 
@@ -78,6 +86,8 @@ class _BookingScreenState extends State<BookingScreen> {
   int _groupSize = 1;
   bool _isProcessing = false;
   String _selectedPayment = 'mtn';
+
+  final _bookingRepo = BookingRepository();
 
   Map<String, dynamic> get _exp {
     final id = widget.experienceId ?? '';
@@ -536,14 +546,54 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Future<void> _processBooking() async {
-    setState(() => _isProcessing = true);
-    await Future.delayed(const Duration(seconds: 2));
-    if (!mounted) return;
-    setState(() => _isProcessing = false);
-    _showConfirmation();
-  }
+  if (_selectedDate == null) return;
+  setState(() => _isProcessing = true);
 
-  void _showConfirmation() {
+  try {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You need to be logged in to make a booking.'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      setState(() => _isProcessing = false);
+      return;
+    }
+
+    final bookingId = await _bookingRepo.createBooking(
+      touristId: currentUser.uid,
+      experienceId: widget.experienceId!,
+      providerId: _exp['providerId'] as String,
+      experienceDate: _selectedDate!,
+      groupSize: _groupSize,
+      totalPrice: _total,
+      paymentMethod: _selectedPayment,
+    );
+
+    if (mounted) {
+      setState(() => _isProcessing = false);
+      _showConfirmation(bookingId);
+    }
+  } catch (e) {
+    if (mounted) {
+      setState(() => _isProcessing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Booking failed: ${e.toString().replaceFirst('Exception: ', '')}'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+}
+
+  void _showConfirmation(String bookingId) {
     final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
@@ -574,6 +624,13 @@ class _BookingScreenState extends State<BookingScreen> {
                   fontWeight: FontWeight.bold,
                   color: Colors.green),
             ),
+
+            const SizedBox(height: 6),
+            Text(
+              'Booking ID: ${bookingId.substring(0, 8).toUpperCase()}',
+              style: TextStyle(color: Colors.grey[500], fontSize: 11),
+            ),
+
             const SizedBox(height: 12),
             Text(
               l10n.smsConfirmation,
