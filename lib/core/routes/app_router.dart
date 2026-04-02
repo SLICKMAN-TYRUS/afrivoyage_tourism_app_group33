@@ -155,72 +155,6 @@ final GoRouter appRouter = GoRouter(
 
 // No animation — intentional for tab switches.
 // Instant feels snappier; animated tab switches look jittery.
-Page<void> _noTransitionPage({required LocalKey key, required Widget child}) {
-  return NoTransitionPage<void>(key: key, child: child);
-}
-
-// Fade in — neutral and clean. Good for splash → home and any detail page
-// where you want the screen to appear without a direction bias.
-Page<void> _fadeTransitionPage({required LocalKey key, required Widget child}) {
-  return CustomTransitionPage<void>(
-    key: key,
-    child: child,
-    transitionDuration: const Duration(milliseconds: 300),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
-        child: child,
-      );
-    },
-  );
-}
-
-// Directional slide — each direction carries meaning:
-//   left  → going deeper / forward into a sub-screen
-//   right → returning (e.g. auth flow going back to login)
-//   up    → modal / overlay feel (forms, bottom-sheet style pages)
-Page<void> _slideTransitionPage({
-  required LocalKey key,
-  required Widget child,
-  required AxisDirection direction,
-}) {
-  final startOffset = switch (direction) {
-    AxisDirection.left => const Offset(1.0, 0.0),
-    AxisDirection.right => const Offset(-1.0, 0.0),
-    AxisDirection.up => const Offset(0.0, 1.0),
-    AxisDirection.down => const Offset(0.0, -1.0),
-  };
-  return CustomTransitionPage<void>(
-    key: key,
-    child: child,
-    transitionDuration: const Duration(milliseconds: 350),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-        SlideTransition(
-      position: Tween<Offset>(begin: startOffset, end: Offset.zero).animate(
-        CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
-      ),
-      child: child,
-    ),
-  );
-}
-
-// ── Bridges Firebase auth stream → GoRouter ChangeNotifier ────
-
-class _GoRouterRefreshStream extends ChangeNotifier {
-  _GoRouterRefreshStream(Stream<dynamic> stream) {
-    notifyListeners();
-    _sub = stream.asBroadcastStream().listen((_) => notifyListeners());
-  }
-
-  late final dynamic _sub;
-
-  @override
-  void dispose() {
-    _sub.cancel();
-    super.dispose();
-  }
-}
-=======
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -250,7 +184,7 @@ final GoRouter appRouter = GoRouter(
   debugLogDiagnostics: true,
   observers: [RouterObserver()],
 
-  // ── Auth guard ─────────────────────────────────────────────
+  // ── Auth guard ─────────────────────────────────────────────────────────────
   redirect: (context, state) {
     final user = FirebaseAuth.instance.currentUser;
     final onAuth = state.matchedLocation == RouteNames.login;
@@ -266,7 +200,7 @@ final GoRouter appRouter = GoRouter(
   errorBuilder: (context, state) => ErrorPage(error: state.error),
 
   routes: [
-    // ── Login ───────────────────────────────────────────────
+    // ── Login ────────────────────────────────────────────────────────────────
     GoRoute(
       path: RouteNames.login,
       name: RouteNames.loginName,
@@ -278,7 +212,7 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // ── Settings ────────────────────────────────────────────
+    // ── Settings ──────────────────────────────────────────────────────────────
     GoRoute(
       path: RouteNames.settings,
       name: RouteNames.settingsName,
@@ -290,7 +224,7 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // ── Booking detail (full-screen, above shell) ───────────
+    // ── Booking detail (full-screen, above shell) ─────────────────────────────
     GoRoute(
       path: '/booking/:id',
       parentNavigatorKey: _rootNavigatorKey,
@@ -301,7 +235,7 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // ── Shell (bottom-nav tabs) ─────────────────────────────
+    // ── Shell (bottom-nav tabs) ──────────────────────────────────────────────
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) => child,
@@ -379,6 +313,63 @@ Page<void> _noTransitionPage({required LocalKey key, required Widget child}) {
 // where you want the screen to appear without a direction bias.
 Page<void> _fadeTransitionPage({required LocalKey key, required Widget child}) {
   return CustomTransitionPage<void>(
+    key: key,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+        child: child,
+      );
+    },
+  );
+}
+
+// Directional slide — each direction carries meaning:
+//   left  → going deeper / forward into a sub-screen
+//   right → returning (e.g. auth flow going back to login)
+//   up    → modal / overlay feel (forms, bottom-sheet style pages)
+Page<void> _slideTransitionPage({
+  required LocalKey key,
+  required Widget child,
+  required AxisDirection direction,
+}) {
+  final startOffset = switch (direction) {
+    AxisDirection.left  => const Offset(1.0, 0.0),
+    AxisDirection.right => const Offset(-1.0, 0.0),
+    AxisDirection.up    => const Offset(0.0, 1.0),
+    AxisDirection.down  => const Offset(0.0, -1.0),
+  };
+  return CustomTransitionPage<void>(
+    key: key,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 350),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+        SlideTransition(
+      position: Tween<Offset>(begin: startOffset, end: Offset.zero).animate(
+        CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+      ),
+      child: child,
+    ),
+  );
+}
+
+// ── Bridges Firebase auth stream → GoRouter ChangeNotifier ────────────────
+
+class _GoRouterRefreshStream extends ChangeNotifier {
+  _GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _sub = stream.asBroadcastStream().listen((_) => notifyListeners());
+  }
+
+  late final dynamic _sub;
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
+  }
+}
     key: key,
     child: child,
     transitionDuration: const Duration(milliseconds: 300),

@@ -1,103 +1,515 @@
-<<<<<<< HEAD
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../data/repositories/booking_repository.dart';
-import '../../../data/repositories/experience_repository.dart';
-import '../blocs/experience_bloc.dart';
+import '../../../core/cubits/settings_cubit.dart';
+import '../../../core/routes/route_names.dart';
+import '../../../data/repositories/auth_repository.dart';
+import '../../shared/theme/theme_cubit.dart';
+import '../../../l10n/app_localizations.dart';
 
-class HomeScreen extends StatelessWidget {
+// ─────────────────────────────────────────────────────────────────────────────
+// Static experience data
+// ─────────────────────────────────────────────────────────────────────────────
+final _kExperiences = <Map<String, dynamic>>[
+  {
+    'id': 'exp1',
+    'title': 'Gorilla Trekking Experience',
+    'category': 'Adventure',
+    'description':
+        'Trek through lush rainforests to encounter endangered mountain gorillas in their natural habitat. Led by expert RDB-certified guides.',
+    'priceRWF': 95000.0,
+    'rating': 4.9,
+    'reviewCount': 127,
+    'location': 'Volcanoes National Park',
+    'duration': '6–8 hours',
+    'verified': true,
+    'color': 0xFF1B5E20,
+  },
+  {
+    'id': 'exp2',
+    'title': 'Traditional Intore Dance Workshop',
+    'category': 'Culture',
+    'description':
+        'Learn the powerful Intore dance — a UNESCO-recognised cultural heritage of Rwanda — performed by skilled local artists.',
+    'priceRWF': 15000.0,
+    'rating': 4.8,
+    'reviewCount': 89,
+    'location': 'Kigali Cultural Center',
+    'duration': '2 hours',
+    'verified': true,
+    'color': 0xFF4A148C,
+  },
+  {
+    'id': 'exp3',
+    'title': 'Coffee Farm Tour & Tasting',
+    'category': 'Food & Drink',
+    'description':
+        "Visit a local coffee cooperative and learn about Rwanda's famous single-origin coffee, from bean to cup.",
+    'priceRWF': 20000.0,
+    'rating': 4.7,
+    'reviewCount': 56,
+    'location': 'Huye District',
+    'duration': '3 hours',
+    'verified': false,
+    'color': 0xFF4E342E,
+  },
+  {
+    'id': 'exp4',
+    'title': 'Nyungwe Forest Canopy Walk',
+    'category': 'Nature',
+    'description':
+        "Walk 70 m above the ground on a suspension bridge through one of Africa's oldest rainforests, full of primates and birds.",
+    'priceRWF': 25000.0,
+    'rating': 4.6,
+    'reviewCount': 203,
+    'location': 'Nyungwe National Park',
+    'duration': '4 hours',
+    'verified': true,
+    'color': 0xFF2E7D32,
+  },
+  {
+    'id': 'exp5',
+    'title': 'Lake Kivu Sunset Cruise',
+    'category': 'Nature',
+    'description':
+        'Sail on beautiful Lake Kivu while watching the sunset over the Congo Nile Trail mountains with local fishermen.',
+    'priceRWF': 18000.0,
+    'rating': 4.5,
+    'reviewCount': 78,
+    'location': 'Gisenyi, Lake Kivu',
+    'duration': '2 hours',
+    'verified': false,
+    'color': 0xFF01579B,
+  },
+  {
+    'id': 'exp6',
+    'title': 'Kigali City Heritage Tour',
+    'category': 'Culture',
+    'description':
+        "Explore Kigali's transformation — from the Genocide Memorial to bustling Kimironko Market — with knowledgeable local guides.",
+    'priceRWF': 12000.0,
+    'rating': 4.7,
+    'reviewCount': 145,
+    'location': 'Kigali City',
+    'duration': '3 hours',
+    'verified': true,
+    'color': 0xFFE65100,
+  },
+];
+
+// Static past / upcoming bookings shown on the Bookings tab
+final _kBookings = <Map<String, dynamic>>[
+  {
+    'id': 'BK-001',
+    'title': 'Gorilla Trekking Experience',
+    'date': 'April 15, 2026',
+    'participants': 2,
+    'total': 190000,
+    'status': 'confirmed',
+  },
+  {
+    'id': 'BK-002',
+    'title': 'Coffee Farm Tour & Tasting',
+    'date': 'March 28, 2026',
+    'participants': 3,
+    'total': 60000,
+    'status': 'completed',
+  },
+  {
+    'id': 'BK-003',
+    'title': 'Lake Kivu Sunset Cruise',
+    'date': 'April 22, 2026',
+    'participants': 4,
+    'total': 72000,
+    'status': 'pending',
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HomeScreen — 5-tab shell
+// ─────────────────────────────────────────────────────────────────────────────
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ExperienceBloc(
-        experienceRepository: ExperienceRepository(),
-        bookingRepository: BookingRepository(),
-      )..add(const LoadExperiences()),
-      child: const _HomeView(),
-    );
-  }
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeView extends StatefulWidget {
-  const _HomeView();
-
-  @override
-  State<_HomeView> createState() => _HomeViewState();
-}
-
-class _HomeViewState extends State<_HomeView> {
+class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  String _searchQuery = '';
+  // Internal filter key stays in English to match experience data
+  String _selectedCategory = 'All';
+  final _searchController = TextEditingController();
+
+  List<String> _tabTitles(AppLocalizations l10n) => [
+        l10n.discoverRwanda,
+        l10n.explore,
+        l10n.myBookings,
+        l10n.yourImpact,
+        l10n.profileTab,
+      ];
+
+  // Maps internal English key -> localized display label
+  Map<String, String> _categoryLabels(AppLocalizations l10n) => {
+        'All': l10n.categoryAll,
+        'Nature': l10n.categoryNature,
+        'Culture': l10n.categoryCulture,
+        'Food & Drink': l10n.categoryFoodDrink,
+        'Adventure': l10n.categoryAdventure,
+      };
+
+  @override
+  void initState() {
+    super.initState();
+    _redirectProviderOnRestart();
+  }
+
+  Future<void> _redirectProviderOnRestart() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final profile = await AuthRepository().getUserProfile(user.uid);
+    final role = (profile?['accountType'] as String?) ?? 'tourist';
+    if (role == 'provider' && mounted) {
+      context.go(RouteNames.provider);
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, dynamic>> get _filtered {
+    return _kExperiences.where((exp) {
+      final matchSearch = _searchQuery.isEmpty ||
+          (exp['title'] as String).toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          (exp['description'] as String).toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchCat =
+          _selectedCategory == 'All' || exp['category'] == _selectedCategory;
+      return matchSearch && matchCat;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Discover Rwanda'),
+        title: Text(_tabTitles(l10n)[_selectedIndex]),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () {},
-          ),
+          if (_selectedIndex == 0)
+            IconButton(
+              icon: const Icon(Icons.notifications_none),
+              onPressed: () => _showNotifications(context),
+            ),
         ],
       ),
-      body: _selectedIndex == 0 ? _buildHomeContent() : _buildPlaceholder(),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _buildHomeTab(),
+          _buildExploreTab(),
+          _buildBookingsTab(),
+          _buildImpactTab(),
+          _buildProfileTab(),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        items: const [
+        onTap: (i) => setState(() => _selectedIndex = i),
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: const Icon(Icons.home),
+            label: l10n.homeTab,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            activeIcon: Icon(Icons.explore),
-            label: 'Explore',
+            icon: const Icon(Icons.explore),
+            label: l10n.exploreTab,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            activeIcon: Icon(Icons.calendar_today),
-            label: 'Bookings',
+            icon: const Icon(Icons.book_online),
+            label: l10n.bookingsTab,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outline),
-            activeIcon: Icon(Icons.favorite),
-            label: 'Impact',
+            icon: const Icon(Icons.emoji_nature),
+            label: l10n.impactTab,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            icon: const Icon(Icons.person),
+            label: l10n.profileTab,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHomeContent() {
+  // ════════════════════════════════════════════════════════════════════════════
+  // Notifications bottom sheet
+  // ════════════════════════════════════════════════════════════════════════════
+  void _showNotifications(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.notifications, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(height: 16),
+            _notifTile(Icons.check_circle, Colors.green, l10n.bookingConfirmed, l10n.bookingConfirmedMsg),
+            _notifTile(Icons.info_outline, Colors.blue, l10n.newExperience, l10n.newExperienceMsg),
+            _notifTile(Icons.warning_amber_rounded, Colors.orange, l10n.paymentPending, l10n.paymentPendingMsg),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _notifTile(IconData icon, Color color, String title, String subtitle) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: CircleAvatar(
+        backgroundColor: color.withOpacity(0.15),
+        child: Icon(icon, color: color, size: 20),
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(subtitle),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // TAB 0 — Home
+  // ════════════════════════════════════════════════════════════════════════════
+  Widget _buildHomeTab() {
+    final l10n = AppLocalizations.of(context)!;
+    final filtered = _filtered;
+    final catLabels = _categoryLabels(l10n);
     return Column(
       children: [
-        // Search Bar
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
           child: TextField(
+            controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Search experiences...',
-              hintStyle: TextStyle(color: Colors.grey[400]),
+              hintText: l10n.searchExperiences,
               prefixIcon: const Icon(Icons.search),
-              filled: true,
-              fillColor: Colors.grey[800],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              isDense: true,
+            ),
+            onChanged: (v) => setState(() => _searchQuery = v),
+          ),
+        ),
+        SizedBox(
+          height: 44,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            children: catLabels.entries.map((e) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: _buildCategoryChip(e.key, e.value),
+            )).toList(),
+          ),
+        ),
+        Expanded(
+          child: filtered.isEmpty
+              ? Center(child: Text(l10n.noExperiencesFound))
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: filtered.length,
+                  itemBuilder: (ctx, i) => _buildExperienceCard(ctx, filtered[i]),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategoryChip(String key, String displayLabel) {
+    final selected = _selectedCategory == key;
+    final primary = Theme.of(context).colorScheme.primary;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedCategory = key),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? primary.withOpacity(0.12) : Colors.grey[200],
+          border: Border.all(color: selected ? primary : Colors.transparent, width: 2),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Icon(_categoryIcon(key), size: 16, color: selected ? primary : Colors.grey[600]),
+            const SizedBox(width: 6),
+            Text(displayLabel, style: TextStyle(fontWeight: FontWeight.bold, color: selected ? primary : Colors.grey[800])),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExperienceCard(BuildContext context, Map<String, dynamic> exp) {
+    final l10n = AppLocalizations.of(context)!;
+    final price = exp['priceRWF'] as double;
+    final isVerified = exp['verified'] as bool;
+    final bg = Color(exp['color'] as int);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 90,
+            width: double.infinity,
+            color: bg.withOpacity(0.08),
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Icon(Icons.landscape, size: 48, color: bg.withOpacity(0.3)),
+                ),
+                if (isVerified)
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: bg,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.verified, size: 14, color: Colors.white),
+                          SizedBox(width: 4),
+                          Text('Verified', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(exp['title'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 4),
+                Text(exp['description'], maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.black54)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.location_on, size: 14, color: bg),
+                    const SizedBox(width: 4),
+                    Text(exp['location'], style: const TextStyle(fontSize: 12)),
+                    const Spacer(),
+                    Icon(Icons.star, size: 14, color: Colors.amber),
+                    Text('${exp['rating']}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(' (${exp['reviewCount']})', style: const TextStyle(fontSize: 12, color: Colors.black45)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Text('${l10n.price}: ', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text('RWF ${price.toStringAsFixed(0)}', style: TextStyle(color: bg, fontWeight: FontWeight.bold)),
+                    const Spacer(),
+                    Text(exp['duration'], style: const TextStyle(fontSize: 12, color: Colors.black45)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _categoryIcon(String key) {
+    switch (key) {
+      case 'Nature':
+        return Icons.emoji_nature;
+      case 'Culture':
+        return Icons.museum;
+      case 'Food & Drink':
+        return Icons.local_cafe;
+      case 'Adventure':
+        return Icons.hiking;
+      default:
+        return Icons.category;
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // TAB 1 — Explore (placeholder)
+  // ════════════════════════════════════════════════════════════════════════════
+  Widget _buildExploreTab() {
+    final l10n = AppLocalizations.of(context)!;
+    return Center(child: Text(l10n.exploreTab));
+  }
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // TAB 2 — Bookings
+  // ════════════════════════════════════════════════════════════════════════════
+  Widget _buildBookingsTab() {
+    final l10n = AppLocalizations.of(context)!;
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _kBookings.length,
+      itemBuilder: (ctx, i) {
+        final booking = _kBookings[i];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: ListTile(
+            title: Text(booking['title']),
+            subtitle: Text('${booking['date']} • ${booking['participants']} ${l10n.participants}'),
+            trailing: Text('${booking['total']} RWF', style: const TextStyle(fontWeight: FontWeight.bold)),
+            leading: Icon(
+              booking['status'] == 'confirmed'
+                  ? Icons.check_circle
+                  : booking['status'] == 'completed'
+                      ? Icons.done_all
+                      : Icons.hourglass_empty,
+              color: booking['status'] == 'confirmed'
+                  ? Colors.green
+                  : booking['status'] == 'completed'
+                      ? Colors.blue
+                      : Colors.orange,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // TAB 3 — Impact (placeholder)
+  // ════════════════════════════════════════════════════════════════════════════
+  Widget _buildImpactTab() {
+    final l10n = AppLocalizations.of(context)!;
+    return Center(child: Text(l10n.impactTab));
+  }
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // TAB 4 — Profile (placeholder)
+  // ════════════════════════════════════════════════════════════════════════════
+  Widget _buildProfileTab() {
+    final l10n = AppLocalizations.of(context)!;
+    return Center(child: Text(l10n.profileTab));
+  }
+}
               ),
             ),
           ),
