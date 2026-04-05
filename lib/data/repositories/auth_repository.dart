@@ -4,10 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepository {
   // Optional overrides — kept as nullable fields so the constructor
-  // never touches Firebase.instance at all.  Firebase is only reached
-  // through the lazy getters below, which are called at method-call
-  // time, not at construction time.  This allows subclasses (and test
-  // fakes) to be constructed safely without a running Firebase app.
+  // never touches Firebase.instance at all.
   final FirebaseAuth? _authOverride;
   final GoogleSignIn? _googleSignInOverride;
   final FirebaseFirestore? _firestoreOverride;
@@ -20,19 +17,32 @@ class AuthRepository {
         _googleSignInOverride = googleSignIn,
         _firestoreOverride = firestore;
 
-  // ── Lazy getters — Firebase.instance only evaluated on first use ──
-
+  // ── Lazy getters ──
   FirebaseAuth get _auth => _authOverride ?? FirebaseAuth.instance;
   GoogleSignIn get _googleSignIn => _googleSignInOverride ?? GoogleSignIn();
   FirebaseFirestore get _db => _firestoreOverride ?? FirebaseFirestore.instance;
 
-  // ── Public accessors ──────────────────────────────────────────────
-
+  // ── Public accessors ──
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // ── Sign in ───────────────────────────────────────────────────────
+  // ── Validation Methods (ADDED FOR LOGIN_SCREEN) ──
+  bool validateEmail(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email.trim());
+  }
 
+  bool validatePassword(String password) {
+    return password.length >= 8 &&
+        password.contains(RegExp(r'[A-Z]')) &&
+        password.contains(RegExp(r'[a-z]')) &&
+        password.contains(RegExp(r'[0-9]'));
+  }
+
+  bool validatePhone(String phone) {
+    return RegExp(r'^\+?[0-9]{9,15}$').hasMatch(phone.replaceAll(' ', ''));
+  }
+
+  // ── Sign in ──
   Future<User?> signInWithEmail(String email, String password) async {
     try {
       final result = await _auth.signInWithEmailAndPassword(
@@ -80,8 +90,7 @@ class AuthRepository {
     }
   }
 
-  // ── Sign up ───────────────────────────────────────────────────────
-
+  // ── Sign up ──
   Future<User?> signUpWithProfile({
     required String email,
     required String password,
@@ -136,8 +145,7 @@ class AuthRepository {
     });
   }
 
-  // ── Profile fetch ─────────────────────────────────────────────────
-
+  // ── Profile fetch ──
   Future<Map<String, dynamic>?> getUserProfile(String uid) async {
     try {
       final doc = await _db.collection('users').doc(uid).get();
@@ -147,8 +155,7 @@ class AuthRepository {
     }
   }
 
-  // ── Sign out ──────────────────────────────────────────────────────
-
+  // ── Sign out ──
   Future<void> signOut() async {
     await Future.wait([
       _auth.signOut(),
@@ -156,8 +163,7 @@ class AuthRepository {
     ]);
   }
 
-  // ── Password reset ────────────────────────────────────────────────
-
+  // ── Password reset ──
   Future<void> sendPasswordReset(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email.trim());
@@ -168,8 +174,7 @@ class AuthRepository {
     }
   }
 
-  // ── Error mapping ─────────────────────────────────────────────────
-
+  // ── Error mapping ──
   String _friendlyAuthError(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':
@@ -195,30 +200,4 @@ class AuthRepository {
         return 'Authentication failed. Please try again.';
     }
   }
-}
-
-// ── Standalone validators ─────────────────────────────────────────
-
-bool validateEmail(String email) =>
-    RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email.trim());
-
-bool validatePassword(String password) =>
-    password.length >= 8 &&
-    password.contains(RegExp(r'[A-Z]')) &&
-    password.contains(RegExp(r'[a-z]')) &&
-    password.contains(RegExp(r'[0-9]'));
-
-bool validatePhone(String phone) =>
-    RegExp(r'^\+?[0-9]{9,15}$').hasMatch(phone.replaceAll(' ', ''));
-
-// Email validation
-bool validateEmail(String email) {
-  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-  return emailRegex.hasMatch(email.trim());
-}
-
-// Phone validation
-bool validatePhone(String phone) {
-  final phoneRegex = RegExp(r'^\+?[0-9]{9,15}$');
-  return phoneRegex.hasMatch(phone.replaceAll(' ', ''));
 }

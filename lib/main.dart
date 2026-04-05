@@ -11,21 +11,17 @@ import 'package:afrivoyage/presentation/shared/theme/theme_cubit.dart';
 import 'package:afrivoyage/firebase_options.dart';
 import 'package:afrivoyage/l10n/app_localizations.dart';
 import 'package:afrivoyage/l10n/fallback_localizations.dart';
-import 'data/seed/seed_firestore.dart';
 
-// Starting point of the whole app. Keep this file lean —
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Force portrait only. Landscape on a travel app just looks weird —
-  // nobody is scrolling destination cards sideways.
+  // Force portrait only
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Transparent status bar so hero images bleed all the way to the top edge.
-  // Looks a lot more premium with destination photos.
+  // Transparent status bar
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -33,27 +29,15 @@ void main() async {
     ),
   );
 
-  // Firebase has to go first — pretty much everything else depends on it.
-  // Using DefaultFirebaseOptions so it works correctly on both Android and iOS.
-
+  // Initialize Firebase first
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Seed Firestore with initial data (remove or comment out after first run)
-  try {
-    await seedFirestore();
-    print('Firestore seeding complete!');
-  } catch (e) {
-    print('Firestore seeding failed: $e');
-  }
-
-  // Load prefs before runApp, not inside the widget tree.
-  // If we await it later we get a flash of the wrong theme on startup — not great.
+  // Load prefs
   final sharedPreferences = await SharedPreferences.getInstance();
 
-  // Wires up our BLoC observer so every state change prints to the debug console.
-  // Makes tracking down weird UI bugs a lot less painful.
+  // BLoC observer for debugging
   Bloc.observer = AppBlocObserver();
 
   runApp(AfriVoyageApp(sharedPreferences: sharedPreferences));
@@ -68,9 +52,6 @@ class AfriVoyageApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // ThemeCubit sits at the root so any screen can toggle the theme
-        // without passing anything down the tree. It also reads the user's
-        // saved preference from SharedPreferences on first build.
         BlocProvider<ThemeCubit>(
           create: (_) => ThemeCubit(sharedPreferences),
         ),
@@ -88,16 +69,12 @@ class AfriVoyageApp extends StatelessWidget {
                 theme: _buildLightTheme(),
                 darkTheme: _buildDarkTheme(),
                 themeMode: themeMode,
-
-                // Locale is driven by SettingsCubit, persisted via SharedPreferences.
                 locale: Locale(settings.language),
                 localizationsDelegates: const [
                   AppLocalizations.delegate,
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
-                  // Fallbacks for locales not covered by the Global delegates
-                  // (e.g. Kinyarwanda). Must come AFTER the Global delegates.
                   FallbackMaterialLocalizationsDelegate(),
                   FallbackCupertinoLocalizationsDelegate(),
                 ],
@@ -106,7 +83,6 @@ class AfriVoyageApp extends StatelessWidget {
                   Locale('fr'),
                   Locale('rw'),
                 ],
-
                 routerConfig: appRouter,
               );
             },
@@ -117,8 +93,6 @@ class AfriVoyageApp extends StatelessWidget {
   }
 
   ThemeData _buildLightTheme() {
-    // Deep forest green. Felt more "Africa" than the generic teal
-    // everyone reaches for by default.
     const seedColor = Color(0xFF2E7D32);
 
     return ThemeData(
@@ -126,7 +100,7 @@ class AfriVoyageApp extends StatelessWidget {
         seedColor: seedColor,
         brightness: Brightness.light,
         primary: seedColor,
-        secondary: const Color(0xFFF57C00), // warm amber — think safari sunset
+        secondary: const Color(0xFFF57C00),
         surface: const Color(0xFFFAFAFA),
       ),
       useMaterial3: true,
@@ -134,7 +108,7 @@ class AfriVoyageApp extends StatelessWidget {
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.transparent, // lets hero images shine through
+        backgroundColor: Colors.transparent,
         foregroundColor: Color(0xFF1B5E20),
         titleTextStyle: TextStyle(
           fontFamily: 'Poppins',
@@ -151,6 +125,7 @@ class AfriVoyageApp extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
       ),
       cardTheme: CardThemeData(
+        // Fixed: Changed from CardTheme to CardThemeData
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -175,7 +150,6 @@ class AfriVoyageApp extends StatelessWidget {
   }
 
   ThemeData _buildDarkTheme() {
-    // Slightly lighter green so it doesn't vanish against the dark background
     const seedColor = Color(0xFF66BB6A);
 
     return ThemeData(
@@ -208,6 +182,7 @@ class AfriVoyageApp extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
       ),
       cardTheme: CardThemeData(
+        // Fixed: Changed from CardTheme to CardThemeData
         elevation: 2,
         color: const Color(0xFF1E1E1E),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
